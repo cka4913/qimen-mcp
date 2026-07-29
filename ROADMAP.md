@@ -37,9 +37,14 @@ Nine tools, zod input and output schemas, compile-time drift guard, stdio smoke 
 ### P8 — Review follow-up ✅
 An external read-only review found eight issues; all eight are fixed and each has a test.
 
-Two mattered. Impossible dates (`2024-02-30`) were accepted, normalised to another day by the underlying calendar, and charted — while `resolved` still echoed the date nobody asked about. And the memo caches handed out shared mutable objects, so one caller mutating a plate changed every later chart for the same moment. Both broke the determinism the whole project is built on. Dates are now validated against the real month length; every result is deep-frozen.
+Two mattered. Impossible dates (`2024-02-30`) were accepted, normalised to another day by the underlying calendar, and charted — while `resolved` still echoed the date nobody asked about. And the memo caches handed out shared mutable objects, so one caller mutating a plate changed every later chart for the same moment. Both broke the determinism the whole project is built on. Chart-tool inputs are now validated against the real month length; every memoized derivation and every assembled chart result is deep-frozen.
 
 The rest: a `glossary` argument that was declared but never read (removed — `lookup_reference` already answers that question), two argument errors reported as `INTERNAL_ERROR`, a documented error code with no throw path, a corpus that recorded no upstream revision, and a missing `LICENSE`. `server.spec.ts` and `data.spec.ts` were added to close the gap the review identified: negative paths and table completeness, not just parity.
+
+### P9 — Documentation pass ✅
+README rewritten as a full Traditional Chinese section followed by a full English section (no interleaving), with badges and a public-facing structure: features, design principles, architecture, install, client setup, tool table, example, testing and trust, known limitations, documentation index, contributing, notices, license. `docs/HERMES.md` rewritten the same way; its client-facing 中文 prose was previously Cantonese-toned and is now Traditional Chinese book language.
+
+Two claims that had quietly grown broader than the code were narrowed in README and `docs/AI-AGENT-INTEGRATION.md`: "results are deep-frozen" only holds for memoized derivations and the four tools that return an assembled chart (`get_qimen_chart`, `get_qimen_chart_minute`, `get_golden_mirror_chart`, `check_patterns`) — a handful of non-memoized `@kinqimen/core` helpers (`closedSixwuForXun`, `lookupReference`, and the standalone `panDoor`/`panStar`/`panGod`) return a fresh, unfrozen object per call, which carries no risk because nothing shares it. And "impossible dates are rejected" holds at the MCP tool layer, not for every low-level calendar helper — `currentJieqiStart` and `jieqiOnDay` do not call `assertSupported`.
 
 ---
 
