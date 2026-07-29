@@ -46,6 +46,13 @@ README rewritten as a full Traditional Chinese section followed by a full Englis
 
 Two claims that had quietly grown broader than the code were narrowed in README and `docs/AI-AGENT-INTEGRATION.md`: "results are deep-frozen" only holds for memoized derivations and the four tools that return an assembled chart (`get_qimen_chart`, `get_qimen_chart_minute`, `get_golden_mirror_chart`, `check_patterns`) — a handful of non-memoized `@kinqimen/core` helpers (`closedSixwuForXun`, `lookupReference`, and the standalone `panDoor`/`panStar`/`panGod`) return a fresh, unfrozen object per call, which carries no risk because nothing shares it. And "impossible dates are rejected" holds at the MCP tool layer, not for every low-level calendar helper — `currentJieqiStart` and `jieqiOnDay` do not call `assertSupported`.
 
+### P10 — Skill content revision: 年命宮, disclosed defaults ✅
+`skills/kinqimen/SKILL.md` was still written in Cantonese-toned prose inherited from an early draft; rewritten in standard written Chinese throughout (the same cleanup P9 gave the public docs, extended to the one file it had missed).
+
+Two substantive changes, both scoped after checking what upstream actually supports. First: `qimen_ju_name_chaibu`/`qimen_ju_name_zhirun` were being presented as "ask the user, or run both" with no default, which meant every un-scoped question stalled on a clarifying question the user usually didn't have an opinion on. The flow now defaults to 拆補 and says so in the output, with 置閏 offered rather than silently withheld — hard rule 4 was reworded to require the disclosure rather than forbid a default outright.
+
+Second: the user asked whether 年命宮 (anchoring a reading on the querent's birth-year branch, common in some schools for personal-fortune questions) applies here, and whether upstream requires it. It does not — a direct search of `kinqimen.py`, `config.py`, `jieqi.py`, `app.py` and the upstream README turns up zero occurrences of 生年, 命主, 性別, 命宮, or `gender`; `Qimen.__init__` takes only the query moment. 年命宮 is documented as an explicitly optional, non-core supplementary lens: birth year is asked for once and skipped if not given, gender is not asked for at all (it mainly steers multi-year 流年 progression, which is out of scope for a single chart), and the branch-to-palace correspondence reuses the same 12-branch/8-palace table `sixwu.ts` already carries for 閉六戊 — no new engine code, purely a documentation addition, consistent with the project's facts-engine/doctrine split.
+
 ---
 
 ## Not doing
