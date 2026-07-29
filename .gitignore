@@ -1,0 +1,14 @@
+node_modules/
+dist/
+*.tsbuildinfo
+.DS_Store
+.env
+.env.*
+coverage/
+
+# corpus generation venv (see scripts/gen-corpus.py)
+scripts/.venv/
+scripts/upstream/
+
+# local agent settings
+.claude/settings.local.json
