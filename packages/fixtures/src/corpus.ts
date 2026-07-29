@@ -23,10 +23,23 @@ export type CorpusInput = [number, number, number, number, number];
 export interface CorpusFile<Case> {
   generatedBy: string;
   upstream: string;
+  /**
+   * The exact upstream commit this recording was made from.
+   *
+   * Without it, a corpus regenerated against a later upstream HEAD is
+   * indistinguishable from the one the parity suites were written against, and
+   * "the port matches upstream" quietly becomes "the port matches some upstream".
+   */
+  upstreamRevision: string;
+  /** Versions of the libraries that computed the recorded numbers. */
+  upstreamDependencies: Record<string, string>;
   stage: StageName;
   count: number;
   cases: Case[];
 }
+
+/** The revision every corpus file must agree on. Mirrors `scripts/gen-corpus.py`. */
+export const UPSTREAM_REVISION = "f4c6118665253f897889290d8630f9b4cb3a4404";
 
 export interface CalendarCase {
   input: CorpusInput;

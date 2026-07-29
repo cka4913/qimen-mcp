@@ -22,7 +22,7 @@ It does **not** interpret. No tool returns 吉, 凶, advice or a narrative — t
 
 **EN** — Ported from [kentang2017/kinqimen](https://github.com/kentang2017/kinqimen), a Python library with a Streamlit front end. That repo is untouched; this one extracts the calculation logic, drops the UI and the LLM report generator, replaces the `sxtwl`/`ephem` C extensions with a pure-JS calendar layer, and puts the whole thing behind a test suite.
 
-Faithfulness is enforced, not assumed. `scripts/gen-corpus.py` runs the upstream Python engine over **69,146 sampled moments** — the whole 1900–2100 span, every solar-term boundary at ten-minute resolution, both 置閏 windows day by day, every ten-minute 刻 boundary — and records its output. `packages/fixtures/tests/` then compares this engine against that recording field by field. Where this engine deliberately differs, [docs/PORTING-NOTES.md](docs/PORTING-NOTES.md) records the decision and the upstream line it replaces, and a test pins it.
+Faithfulness is enforced, not assumed. `scripts/gen-corpus.py` runs a pinned revision of the upstream Python engine over **69,146 sampled moments** — the whole 1900–2100 span, every solar-term boundary at ten-minute resolution, both 置閏 windows day by day, every ten-minute 刻 boundary — and records its output. `packages/fixtures/tests/` then compares this engine against that recording field by field. Where this engine deliberately differs, [docs/PORTING-NOTES.md](docs/PORTING-NOTES.md) records the decision and the upstream line it replaces, and a test pins it.
 
 **中** — 由 [kentang2017/kinqimen](https://github.com/kentang2017/kinqimen) 移植——嗰個係 Python library 加 Streamlit 介面。原 repo 冇郁過；呢個抽走運算邏輯、丟低 UI 同 LLM 報告生成、將 `sxtwl`／`ephem` 兩個 C extension 換成純 JS 曆法層，再擺埋一套測試喺後面。
 
@@ -57,6 +57,8 @@ scripts/
 
 `core` knows nothing about MCP; `mcp` adds schemas, error mapping and tool descriptions. `fixtures` is test-only and never loaded at runtime.
 
+Everything the engine returns is deep-frozen. The derivations are memoised and shared between callers, so a caller that mutated a result would change someone else's chart; freezing turns that into a `TypeError` at the mutation site instead of a wrong answer somewhere else later.
+
 Every tool that returns a fixed shape declares both an `inputSchema` and an `outputSchema`, so a client can read the full result shape from `tools/list`. The output schemas are kept honest two ways: `types-check.ts` asserts at compile time that each is mutually assignable with the core type it describes, and a test parses real engine output through them. Rename a field in `core` and the build fails.
 
 ---
@@ -68,7 +70,7 @@ Requires Node ≥ 22. No Python, no native extensions, no network, no API keys.
 ```sh
 pnpm install
 pnpm build     # → packages/mcp/dist/index.js
-pnpm test      # 55 tests over 69,146 corpus cases, ~6s
+pnpm test      # 97 tests over 69,146 corpus cases, ~7s
 ```
 
 ---
@@ -157,6 +159,7 @@ Full contract in [docs/AI-AGENT-INTEGRATION.md](docs/AI-AGENT-INTEGRATION.md); t
 - **中宮 has no gate.** `doors` has no `中` key in the 時家 and 刻家 charts.
 - **No timezone, no 真太陽時.** The engine charts the wall clock you hand it.
 - **Supported range is 1900–2100**, the span of the solar-term table.
+- **Impossible dates are rejected, not normalised.** `2024-02-30` is an error, not 1 March.
 - **Charts from 2079-06-06 onward differ from upstream deliberately** — a float64 limit in upstream's `ephem` misreads the hour there. [PORTING-NOTES.md](docs/PORTING-NOTES.md) D1.
 
 ---

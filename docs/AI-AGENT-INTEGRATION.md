@@ -6,7 +6,7 @@
 
 ## The contract in one paragraph
 
-Every tool is a pure function of its arguments. Same input, same output, forever — no clock, no timezone, no session, no network, no API key. The one exception is `resolve_time`, which exists precisely so that the exception is explicit: it reads the clock, hands you a string, and every other tool makes you pass that string back in. Business failures come back as `{ error: { code, message } }` with `isError: true`; malformed arguments come back as a protocol error from the schema. Branch on `code`, never on message text.
+Every tool is a pure function of its arguments. Same input, same output, forever — no clock, no timezone, no session, no network, no API key. The one exception is `resolve_time`, which exists precisely so that the exception is explicit: it reads the clock, hands you a string, and every other tool makes you pass that string back in. Results are deep-frozen; copy before modifying. Business failures come back as `{ error: { code, message } }` with `isError: true`; malformed arguments come back as a `-32602` validation error whose body is a plain sentence rather than JSON. Branch on `code`, never on message text.
 
 ---
 
@@ -63,20 +63,34 @@ Neither is "correct". The engine will not choose for you and neither should an a
 
 **`craneGod` is usually `null`.** See [PORTING-NOTES.md](PORTING-NOTES.md) D6 — the upstream table is incomplete and returns repeated characters rather than directions. Do not read it as a direction.
 
-**`resolved` echoes the inputs.** Every chart carries back the datetime and method it was built from, so a cached result is self-describing.
+**`resolved` echoes the inputs.** Every chart carries back the datetime and method it was built from, so a cached result is self-describing. The datetime it echoes is exactly the one you sent — an impossible date is rejected rather than silently normalised.
+
+**Results are frozen.** The engine memoises its derivations and shares them between callers, so everything it returns is deep-frozen. Mutating a result throws a `TypeError`; copy it first if you need to change it. (Over MCP this is invisible — you receive JSON — but it matters when using `@kinqimen/core` directly.)
 
 ---
 
 ## Errors
 
+Two channels, and they look different on the wire:
+
+- **Schema violations** — a missing argument, a bad `datetime` format, an unknown enum value. The SDK rejects these before the handler runs and returns `isError: true` with a plain sentence beginning `MCP error -32602`. **This body is not JSON.** Parsing it will throw.
+- **Business failures** — the arguments were well-formed but the engine cannot serve them. `isError: true` with a JSON body: `{ "error": { "code", "message", "details" } }`.
+
 | Code | Meaning |
 |---|---|
-| `DATETIME_INVALID` | Not `YYYY-MM-DDTHH:mm`, or an out-of-range field |
+| `DATETIME_INVALID` | A field is out of range, or the date does not exist (e.g. 2024-02-30) |
 | `DATETIME_OUT_OF_RANGE` | Year outside 1900–2100 |
-| `JIEQI_NOT_FOUND` | No solar term within the search window — should not happen in range |
-| `ANGAN_NOT_FOUND` | No 暗干 row for this 局+刻柱 |
+| `ARGUMENT_REQUIRED` | A one-of requirement the schema cannot express — `get_closed_sixwu` needs `datetime` or `xunHead` |
+| `TIMEZONE_INVALID` | `resolve_time` was handed an unknown IANA zone |
 | `UNKNOWN_REFERENCE_KEY` | `lookup_reference` was handed a key that category does not have |
-| `TABLE_LOOKUP_FAILED` | An internal table missed. Always a bug — please report with the input |
+
+The first four are reachable by a normal caller, and `server.spec.ts` reaches each one through the real protocol. The three below are guards — the data they check is complete (`data.spec.ts` asserts so), so seeing one means a table regressed. Please report it with the input:
+
+| Code | Guards |
+|---|---|
+| `JIEQI_NOT_FOUND` | No solar term within the search window |
+| `ANGAN_NOT_FOUND` | No 暗干 row for this 局+刻柱 — the table covers all 360 |
+| `TABLE_LOOKUP_FAILED` | Any other internal table miss |
 
 ---
 

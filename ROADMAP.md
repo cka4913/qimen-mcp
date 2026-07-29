@@ -34,6 +34,13 @@ Nine tools, zod input and output schemas, compile-time drift guard, stdio smoke 
 ### P7 — Text view, skill, docs ✅
 `render-text.ts`, `skills/kinqimen/SKILL.md`, five docs. The skill is held to reality by `skill.spec.ts`, which caught two tools the skill had failed to mention.
 
+### P8 — Review follow-up ✅
+An external read-only review found eight issues; all eight are fixed and each has a test.
+
+Two mattered. Impossible dates (`2024-02-30`) were accepted, normalised to another day by the underlying calendar, and charted — while `resolved` still echoed the date nobody asked about. And the memo caches handed out shared mutable objects, so one caller mutating a plate changed every later chart for the same moment. Both broke the determinism the whole project is built on. Dates are now validated against the real month length; every result is deep-frozen.
+
+The rest: a `glossary` argument that was declared but never read (removed — `lookup_reference` already answers that question), two argument errors reported as `INTERNAL_ERROR`, a documented error code with no throw path, a corpus that recorded no upstream revision, and a missing `LICENSE`. `server.spec.ts` and `data.spec.ts` were added to close the gap the review identified: negative paths and table completeness, not just parity.
+
 ---
 
 ## Not doing

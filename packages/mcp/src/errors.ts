@@ -2,10 +2,14 @@
  * Business-logic errors travel in the tool *result*, not as MCP protocol errors.
  *
  * Two channels, deliberately separate:
- *   - malformed arguments  → protocol error -32602, raised by the zod schema
- *   - valid arguments the engine cannot serve → `{ error: { code, message } }`
+ *   - malformed arguments  → -32602, raised by the zod schema before the handler
+ *     runs. The SDK delivers this as an `isError` result whose text is a plain
+ *     sentence, *not* JSON — so an error body is not always parseable.
+ *   - valid arguments the engine cannot serve → `{ error: { code, message } }`,
+ *     always parseable JSON.
  *
- * An agent should branch on `code`, never on message text.
+ * An agent should branch on `code`, never on message text, and should be ready
+ * for an error body that does not parse (that one is a schema violation).
  */
 import { KinqimenError } from "@kinqimen/core";
 

@@ -5,6 +5,7 @@
 import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import {
+  KinqimenError,
   buildChart,
   buildGoldenMirrorChart,
   buildKeChart,
@@ -50,6 +51,13 @@ export function registerResolveTime(server: McpServer): void {
     async ({ timezone }) =>
       safe(() => {
         const tz = timezone ?? Intl.DateTimeFormat().resolvedOptions().timeZone;
+        // `Intl` throws a bare RangeError on an unknown zone, which would reach
+        // the agent as INTERNAL_ERROR — a lie about whose fault it is.
+        try {
+          new Intl.DateTimeFormat("en-CA", { timeZone: tz });
+        } catch {
+          throw new KinqimenError("TIMEZONE_INVALID", `unknown IANA timezone ${tz}`, { timezone: tz });
+        }
         const parts = new Intl.DateTimeFormat("en-CA", {
           timeZone: tz,
           year: "numeric",
@@ -124,7 +132,12 @@ export function registerSixwu(server: McpServer): void {
       safe(() => {
         if (xunHead) return closedSixwuForXun(xunHead, version);
         if (!datetime) {
-          throw new Error("需要 datetime 或 xunHead 其中一個");
+          // Neither selector given. A raw shape cannot express "one of these
+          // two", so the check lives here — but it is an argument error, and it
+          // says so rather than reporting itself as an internal fault.
+          throw new KinqimenError("ARGUMENT_REQUIRED", "需要 datetime 或 xunHead 其中一個", {
+            expected: ["datetime", "xunHead"],
+          });
         }
         return closedSixwu(toCivilDateTime(datetime), version);
       })

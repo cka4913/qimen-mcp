@@ -58,6 +58,27 @@ export function invertRecord<V extends string>(record: Record<string, V>): Recor
 }
 
 /**
+ * Freeze an object and everything reachable from it.
+ *
+ * Every result this engine hands out is frozen. That is not tidiness: the
+ * memoised derivations below are shared between callers, so a caller that
+ * mutated one would poison the cache and change *other* callers' charts — the
+ * exact opposite of the determinism the engine promises. Freezing turns that
+ * into an immediate `TypeError` at the mutation site instead of a wrong chart
+ * somewhere else later.
+ *
+ * Callers who want to modify a result should copy it first.
+ */
+export function deepFreeze<T>(value: T): T {
+  if (value === null || typeof value !== "object" || Object.isFrozen(value)) return value;
+  Object.freeze(value);
+  for (const key of Object.getOwnPropertyNames(value)) {
+    deepFreeze((value as Record<string, unknown>)[key]);
+  }
+  return value;
+}
+
+/**
  * Cache a pure function on a string key, bounded so a long-running server
  * cannot grow one without limit.
  *
@@ -65,7 +86,8 @@ export function invertRecord<V extends string>(record: Record<string, V>): Recor
  * derivations stack deeply — a chart asks for its bureau eight times over, and
  * each ask would otherwise walk the solar-term table again. Memoising the few
  * primitives at the bottom turns that from quadratic re-derivation into one
- * pass. Purity is what makes this safe: same key, same answer, forever.
+ * pass. Purity is what makes this safe: same key, same answer, forever — and
+ * `deepFreeze` is what keeps it true once the value has left the function.
  */
 export function memoize<Args extends unknown[], R>(
   keyOf: (...args: Args) => string,
@@ -77,7 +99,7 @@ export function memoize<Args extends unknown[], R>(
     const key = keyOf(...args);
     const hit = cache.get(key);
     if (hit !== undefined || cache.has(key)) return hit as R;
-    const value = fn(...args);
+    const value = deepFreeze(fn(...args));
     if (cache.size >= limit) {
       // Cheapest useful eviction: drop the oldest insertion.
       const oldest = cache.keys().next();

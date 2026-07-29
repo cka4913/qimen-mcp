@@ -10,7 +10,7 @@ import type { CivilDateTime } from "./calendar.js";
 import { pillars } from "./ganzhi.js";
 import { panEarth, panSky } from "./plate.js";
 import { zhifuNZhishi, type Method } from "./zhifu.js";
-import { invertRecord } from "./util.js";
+import { deepFreeze, invertRecord } from "./util.js";
 
 export interface PatternResult {
   /** The palace the pattern formed in, or `null` if it did not form. */
@@ -85,9 +85,9 @@ export function jadeGirl(dt: CivilDateTime, method: Method): PatternResult {
 
 /** All three at once. */
 export function patterns(dt: CivilDateTime, method: Method): Patterns {
-  return {
+  return deepFreeze({
     greenDragon: greenDragon(dt, method),
     flyingBird: flyingBird(dt, method),
     jadeGirl: jadeGirl(dt, method),
-  };
+  });
 }

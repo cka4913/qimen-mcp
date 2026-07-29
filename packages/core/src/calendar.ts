@@ -58,15 +58,39 @@ export interface LunarDate {
 export const MIN_YEAR = 1900;
 export const MAX_YEAR = 2100;
 
+/** Days in a Gregorian month, honouring the leap rule. */
+export function daysInMonth(year: number, month: number): number {
+  if (month === 2) return (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0 ? 29 : 28;
+  return [4, 6, 9, 11].includes(month) ? 30 : 31;
+}
+
 export function assertSupported(dt: CivilDateTime): void {
-  if (!Number.isInteger(dt.year) || !Number.isInteger(dt.month) || !Number.isInteger(dt.day)) {
-    throw new KinqimenError("DATETIME_INVALID", "year, month and day must be integers", { ...dt });
+  if (
+    !Number.isInteger(dt.year) ||
+    !Number.isInteger(dt.month) ||
+    !Number.isInteger(dt.day) ||
+    !Number.isInteger(dt.hour) ||
+    !Number.isInteger(dt.minute)
+  ) {
+    throw new KinqimenError("DATETIME_INVALID", "every field of a datetime must be an integer", { ...dt });
   }
-  if (dt.month < 1 || dt.month > 12 || dt.day < 1 || dt.day > 31) {
-    throw new KinqimenError("DATETIME_INVALID", "month must be 1–12 and day 1–31", { ...dt });
+  if (dt.month < 1 || dt.month > 12) {
+    throw new KinqimenError("DATETIME_INVALID", "month must be 1–12", { ...dt });
   }
   if (dt.hour < 0 || dt.hour > 23 || dt.minute < 0 || dt.minute > 59) {
     throw new KinqimenError("DATETIME_INVALID", "hour must be 0–23 and minute 0–59", { ...dt });
+  }
+  // A date that does not exist must be rejected, not normalised. `Date` would
+  // silently roll 2024-02-30 forward to 2024-03-01, and the chart would then be
+  // for a day the caller never asked about while `resolved` still echoed the
+  // impossible one — which quietly breaks reproducibility and auditability.
+  const last = daysInMonth(dt.year, dt.month);
+  if (dt.day < 1 || dt.day > last) {
+    throw new KinqimenError(
+      "DATETIME_INVALID",
+      `${dt.year}-${dt.month} has ${last} days, so day ${dt.day} does not exist`,
+      { ...dt }
+    );
   }
   if (dt.year < MIN_YEAR || dt.year > MAX_YEAR) {
     throw new KinqimenError(
@@ -177,6 +201,7 @@ function beforeJieqiStartUncached(dt: CivilDateTime): JieqiMoment {
  * the previous term.
  */
 function jieqiNameUncached(dt: CivilDateTime): string {
+  assertSupported(dt);
   const start = currentJieqiStart(dt);
   const next = nextJieqiStart(dt);
   if (compare(start, dt) <= 0 && compare(dt, next) < 0) return start.name;
@@ -186,6 +211,7 @@ function jieqiNameUncached(dt: CivilDateTime): string {
 
 /** `jieqi.lunar_date_d` */
 export function lunarDate(year: number, month: number, day: number): LunarDate {
+  assertSupported({ year, month, day, hour: 0, minute: 0 });
   const lunar = Solar.fromYmd(year, month, day).getLunar();
   // `lunar-javascript` signs leap months negative; sxtwl (and therefore every
   // upstream table keyed on the month number) reports them unsigned.

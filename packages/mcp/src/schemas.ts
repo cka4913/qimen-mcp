@@ -29,18 +29,12 @@ export const sixwuVersionSchema = z
   .enum(["yanyi", "baojian"])
   .describe("閉六戊法版本：yanyi（演義版，逆布連土）或 baojian（寶鑑版，順布連土）。兩個傳承方向相反。");
 
-export const glossarySchema = z
-  .boolean()
-  .optional()
-  .default(false)
-  .describe(
-    "係咪要連名詞全稱同釋義一齊回（例如「符」→「值符」）。預設 false：" +
-      "同一道門、同一粒星喺九宮入面重複出現，逐宮附釋義等於白燒 token。" +
-      "要查單一名詞用 lookup_reference。"
-  );
-
 export const datetimeShape = { datetime: datetimeSchema };
-export const chartShape = { datetime: datetimeSchema, method: methodSchema, glossary: glossarySchema };
+// No `glossary` here on purpose. A chart repeats the same eight gates and nine
+// stars across nine palaces, so attaching a gloss to each one burns tokens to
+// say the same thing nine times. `lookup_reference` answers "what is 生門"
+// once, which is how often the question actually gets asked.
+export const chartShape = { datetime: datetimeSchema, method: methodSchema };
 
 /** Parse the validated string into the engine's shape. Never throws for a value that passed the schema. */
 export function toCivilDateTime(value: string): CivilDateTime {

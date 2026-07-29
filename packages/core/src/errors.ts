@@ -5,6 +5,8 @@
  */
 export type KinqimenErrorCode =
   | "DATETIME_INVALID"
+  | "ARGUMENT_REQUIRED"
+  | "TIMEZONE_INVALID"
   | "DATETIME_OUT_OF_RANGE"
   | "JIEQI_NOT_FOUND"
   | "ANGAN_NOT_FOUND"

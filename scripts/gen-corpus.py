@@ -10,10 +10,17 @@ Setup (once):
 
     python3 -m venv scripts/.venv
     scripts/.venv/bin/pip install sxtwl==2.0.6 ephem==4.1.6 bidict==0.23.1
-    git clone --depth 1 https://github.com/kentang2017/kinqimen scripts/upstream
+    git clone https://github.com/kentang2017/kinqimen scripts/upstream
+    git -C scripts/upstream checkout <UPSTREAM_REVISION below>
 
 Both `scripts/.venv/` and `scripts/upstream/` are gitignored: the upstream tree
 is a build input, not part of this repository.
+
+**Pin the upstream revision.** The corpus is a recording of one specific
+version of upstream; regenerating against a later HEAD and comparing the result
+to the old baseline compares two different programs. Every corpus file records
+the commit it was generated from, and this script refuses to run against a
+different one unless you update `UPSTREAM_REVISION` deliberately.
 
 Usage:
 
@@ -30,7 +37,17 @@ import datetime
 import gzip
 import json
 import os
+import subprocess
 import sys
+
+#: The upstream commit this corpus is a recording of. Bump deliberately, then
+#: regenerate every stage and re-run the parity suites — a bump that changes
+#: engine behaviour should show up as a corpus diff and a test failure, not as
+#: a silent shift in the baseline.
+UPSTREAM_REVISION = "f4c6118665253f897889290d8630f9b4cb3a4404"
+
+#: Pinned because they compute the numbers being recorded.
+UPSTREAM_DEPENDENCIES = {"sxtwl": "2.0.6", "ephem": "4.1.6", "bidict": "0.23.1"}
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 UPSTREAM = os.path.join(HERE, "upstream")
@@ -41,6 +58,32 @@ sys.path.insert(0, UPSTREAM)
 import config  # noqa: E402
 import jieqi  # noqa: E402
 import kinqimen  # noqa: E402
+
+
+def upstream_head():
+    """The commit `scripts/upstream` is checked out at."""
+    try:
+        return subprocess.check_output(
+            ["git", "-C", UPSTREAM, "rev-parse", "HEAD"], text=True, stderr=subprocess.DEVNULL
+        ).strip()
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        return None
+
+
+def check_upstream_revision():
+    head = upstream_head()
+    if head is None:
+        raise SystemExit(
+            f"cannot read the upstream revision from {UPSTREAM}.\n"
+            "Clone it with its git metadata intact so the corpus can record what it was generated from."
+        )
+    if head != UPSTREAM_REVISION:
+        raise SystemExit(
+            f"upstream is at {head}, but this corpus is pinned to {UPSTREAM_REVISION}.\n"
+            f"Either `git -C {UPSTREAM} checkout {UPSTREAM_REVISION}`, or update UPSTREAM_REVISION\n"
+            "in this script and regenerate every stage."
+        )
+    return head
 
 
 # ---------------------------------------------------------------- sampling ---
@@ -280,6 +323,10 @@ def write(name, cases):
     payload = {
         "generatedBy": "scripts/gen-corpus.py",
         "upstream": "kentang2017/kinqimen",
+        # Which upstream, exactly. Without this a regenerated corpus cannot be
+        # told apart from the one the parity suites were written against.
+        "upstreamRevision": UPSTREAM_REVISION,
+        "upstreamDependencies": UPSTREAM_DEPENDENCIES,
         "stage": name,
         "count": len(cases),
         "cases": cases,
@@ -294,6 +341,7 @@ def write(name, cases):
 
 
 def main():
+    check_upstream_revision()
     which = sys.argv[1:] or ["all"]
     if which == ["all"]:
         which = list(STAGES)

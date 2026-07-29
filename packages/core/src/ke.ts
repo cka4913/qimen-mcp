@@ -18,8 +18,8 @@ import { CLOCKWISE_EIGHTGUA, CNUMBER, DOOR_R, EARTH_STEM_ORDER, EIGHT_GUA, JIAZI
 import { dtKey, jieqiName, lunarDate, type CivilDateTime, type LunarDate } from "./calendar.js";
 import { pillars, xunHead, xunStem, type Pillars } from "./ganzhi.js";
 import { juKe } from "./ju.js";
-import { chunk, invertRecord, memoize, rotate, zipRecord } from "./util.js";
-import { must } from "./errors.js";
+import { chunk, deepFreeze, invertRecord, memoize, rotate, zipRecord } from "./util.js";
+import { KinqimenError, must } from "./errors.js";
 import { hourKeKong, horses } from "./kong-horse.js";
 import { juDay, METHOD_NAMES } from "./chart.js";
 import { tianyi, type Method, type ZhifuZhishi } from "./zhifu.js";
@@ -184,7 +184,7 @@ export function angan(dt: CivilDateTime): AnganResult {
   const key = `${keKookKey(dt)}${pillars(dt).ke}`;
   const row = ANGAN[key];
   if (row === undefined) {
-    return must(undefined as AnganResult | undefined, "angan row", { key });
+    throw new KinqimenError("ANGAN_NOT_FOUND", `no 暗干 row for ${key}`, { key });
   }
   return {
     hidden: zipRecord(row.slice(0, -1), EIGHT_GUA),
@@ -218,10 +218,10 @@ export interface KeChart {
   angan: AnganResult;
 }
 
-/** Build the whole 刻家 chart. */
+/** Build the whole 刻家 chart. Deep-frozen, like every engine result. */
 export function buildKeChart(dt: CivilDateTime, method: Method): KeChart {
   const gz = pillars(dt);
-  return {
+  return deepFreeze({
     resolved: { datetime: { ...dt }, method },
     methodName: METHOD_NAMES[method],
     pillars: gz,
@@ -241,5 +241,5 @@ export function buildKeChart(dt: CivilDateTime, method: Method): KeChart {
     gods: panGodKe(dt),
     horses: horses(dt),
     angan: angan(dt),
-  };
+  });
 }

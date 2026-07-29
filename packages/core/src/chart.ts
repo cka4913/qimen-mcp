@@ -15,7 +15,7 @@ import { dayHourKong, horses } from "./kong-horse.js";
 import { palaceStages, type PalaceStage } from "./changsheng.js";
 import { xunStem } from "./ganzhi.js";
 import { must } from "./errors.js";
-import { multiKeyGet } from "./util.js";
+import { deepFreeze, multiKeyGet } from "./util.js";
 
 export interface QimenChart {
   /** The inputs, echoed so a result is self-describing and cacheable. */
@@ -68,11 +68,17 @@ export function juDay(dt: CivilDateTime): string {
 
 export const METHOD_NAMES: Record<Method, string> = { chaibu: "拆補", zhirun: "置閏" };
 
-/** Build the whole 時家 chart. */
+/**
+ * Build the whole 時家 chart.
+ *
+ * The result is deep-frozen: its parts are shared with the memo caches, and a
+ * caller that mutated one would change other callers' charts. Copy before
+ * modifying.
+ */
 export function buildChart(dt: CivilDateTime, method: Method): QimenChart {
   const gz = pillars(dt);
   const kong = dayHourKong(dt);
-  return {
+  return deepFreeze({
     resolved: { datetime: { ...dt }, method },
     methodName: METHOD_NAMES[method],
     pillars: gz,
@@ -92,5 +98,5 @@ export function buildChart(dt: CivilDateTime, method: Method): QimenChart {
     gods: panGod(dt, method),
     horses: horses(dt),
     stages: palaceStages(dt, method),
-  };
+  });
 }
