@@ -80,6 +80,11 @@ The hour pillar is never taken from the library at all. Upstream keeps only the
 branch and recomputes the stem by 五鼠遁, so this port computes the branch
 arithmetically from the hour and does the same 五鼠遁.
 
+> **Update (D9).** The month and year pillars no longer use the library's
+> day-granular variants at all. They switch at the exact 節 / 立春 minute taken
+> from this port's own `JIEQI_PACKED` table, so on a term day before the term's
+> minute the pillar stays the old one. See D9.
+
 ---
 
 ## D4 · The sky plate returns one shape
@@ -176,6 +181,51 @@ against upstream output directly:
   off the end and returns `None`. Both become `{ gong: null }`.
 - **`pan_html` / `gpan_html` not ported.** HTML generation belongs to the UI.
   `render_chart_text` renders the same nine-palace layout as text instead.
+
+---
+
+## D9 · Month and year pillars switch at the exact term minute
+
+**Upstream** (`jieqi.gangzhi`) takes the month pillar from `sxtwl.getMonthGZ()`
+and the year pillar from `sxtwl.getYearGZ()`, both day-granular: the whole 節
+day (立春 day for the year) carries the new pillar from 00:00. This port used
+`lunar-javascript`'s matching day-granular variants (formerly D3), so on a 節
+day before the term's own minute the chart reported `節氣` = the previous term
+(whose name is computed against the exact moment) while `月柱` had already
+advanced — an internal inconsistency between two fields of the same result
+(upstream issue #53).
+
+**This port** now switches the month branch at the exact 節 minute and the year
+ganzhi at the exact 立春 minute, both read from this port's own `JIEQI_PACKED`
+table (the same sxtwl-derived table D2 introduced, so no second ephemeris is
+consulted and the D2 minute-disagreement cannot recur). The month stem follows
+by 五虎遁 from the year stem, so the two are fixed together. The month pillar is
+therefore always consistent with the `節氣` field of the same chart — the
+contradiction #53 reported is gone.
+
+Both boundaries are judged against the **original civil moment**, not the
+晚子時-rolled day the *day* pillar uses: 23:00–23:59 is the 子時 attributed to the
+following calendar day for the 日柱／時柱 only, and must not advance the year/month
+ahead of `節氣`. Without this, a 節 or 立春 in the 23:xx hour or at 00:00 (101 in
+the 23:xx hour plus 2 at exactly 00:00, 103 boundaries across 1900–2100) would
+see the month/year roll over up to most of an hour before `節氣` does, leaving the
+chart self-contradictory again.
+
+**Scope.** `pillars().month` and `pillars().year` are pure output: no
+downstream computation consumes them (排局, plates, 馬星, 長生, 格局, 閉六戊 all
+read only `.day` / `.hour` / `.ke`), so no 盤面 field changes. `deviations.spec.ts`
+D9 pins it three ways — the month pillar is always consistent with the term
+period, the year pillar follows 立春 to the minute, and the divergence from
+upstream's day-granular corpus is non-zero but bounded (a small minority of
+sampled moments, all on term-boundary days). `month-year-boundary.spec.ts` checks
+the switch directly for every 節 and for 立春.
+
+**Consequence.** For moments on a 節 day before the term's minute, this engine's
+month (and on 立春 day, year) pillar differs from upstream and from every chart
+recorded by the day-granular convention, deliberately. The divergence is
+occasionally wider than the naïve `[term-day 00:00, term minute)` window,
+because upstream's own day-granular month pillar sometimes contradicts its own
+`節氣` field — which is precisely the inconsistency D9 removes.
 
 ---
 

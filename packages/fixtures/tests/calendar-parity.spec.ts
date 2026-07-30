@@ -32,15 +32,15 @@ describe("calendar corpus", () => {
 });
 
 describe("pillars match upstream", () => {
-  it("year, month, day, hour and ke agree on every case", () => {
+  it("day, hour and ke agree on every case (year/month are a deliberate deviation — see deviations.spec.ts D9)", () => {
     const failures: string[] = [];
     for (const c of corpus.cases) {
       const got = pillars(toCivil(c.input));
-      const want = c.ganzhi;
-      const mine = [got.year, got.month, got.day, got.hour, got.ke];
-      for (let i = 0; i < 5; i++) {
+      const mine = [got.day, got.hour, got.ke];
+      const want = [c.ganzhi[2], c.ganzhi[3], c.ganzhi[4]];
+      for (let i = 0; i < 3; i++) {
         if (mine[i] !== want[i]) {
-          failures.push(`${label(c.input)} pillar[${i}]: got ${mine[i]}, want ${want[i]}`);
+          failures.push(`${label(c.input)} pillar[day/hour/ke ${i}]: got ${mine[i]}, want ${want[i]}`);
           break;
         }
       }

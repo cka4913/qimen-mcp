@@ -9,8 +9,8 @@
 ```
 civil datetime
   → 23:00 rolls over to the next day at 00:00        (晚子時)
-  → 年柱  立春 boundary, day-granular
-  → 月柱  節 boundary, day-granular
+  → 年柱  立春 boundary, exact-minute (D9)
+  → 月柱  節 boundary, exact-minute (D9)
   → 日柱  midnight boundary
   → 時柱  branch from the clock hour; stem by 五鼠遁 from the day pillar
   → 刻柱  ten-minute slot; sequence by 五馬遁 from the *unshifted* day's 子時
@@ -20,6 +20,7 @@ Two details that change charts:
 
 - The 23:00 rollover moves the day pillar *and* the hour pillar forward.
 - The 刻 sequence is anchored on the original date's midnight even when the hour is 23. Upstream does this; it is preserved.
+- The year and month pillars are judged against the *original* civil moment, not the rolled day (D9), so a 節/立春 in the 23:xx hour keeps month/year in step with `節氣` minute for minute.
 
 ---
 

@@ -167,7 +167,7 @@ Claude Desktop、Claude Code 等個別 client 的詳細設定步驟、skill 安�
 
 ## 測試與可信度
 
-- **97 個測試，全數通過**，涵蓋 **69,146 個抽樣時刻**的逐欄比對。
+- **226 個測試，全數通過**，涵蓋 **69,146 個抽樣時刻**的逐欄比對。
 - Golden corpus 由 `scripts/gen-corpus.py` 執行**固定版本**的上游 Python 引擎產生（`f4c6118665253f897889290d8630f9b4cb3a4404`），並將該版本記錄於每份 corpus 檔案；重新產生時若上游版本不符會直接失敗，避免基準悄然漂移。
 - 已知刻意偏離之處記錄於 [docs/PORTING-NOTES.md](docs/PORTING-NOTES.md)，並各自有測試釘住。
 
@@ -185,6 +185,7 @@ Claude Desktop、Claude Code 等個別 client 的詳細設定步驟、skill 安�
 - **中宮無門**——`doors` 在時家與刻家盤面中不含 `中` key。
 - **具快取推導結果與完整盤面結果會進行深層凍結**，避免呼叫端修改共享快取狀態；並非全部 `@kinqimen/core` 匯出函式的回傳值皆為 immutable。
 - **`check_patterns` 只涵蓋三個上游有實作的格局**，並非奇門格局全集；其餘吉凶格局需由呼叫端自行由天地盤與門星神組合判斷。
+- **月柱與年柱按節氣的精確時刻切換，而非整日**（刻意偏離上游 day-granular 慣例）。節氣當日、節氣時刻之前，月柱仍屬上一個月；立春當日、立春時刻之前，年柱仍屬上一年。目的是令月柱與同盤的節氣欄位自洽；詳見 [docs/PORTING-NOTES.md](docs/PORTING-NOTES.md) D9。
 
 ---
 
@@ -394,7 +395,7 @@ For `render_chart_text` output on the same moment and the complete field referen
 
 ## Testing and Trust
 
-- **97 tests, all passing**, exercising **69,146 sampled moments** compared field by field against upstream.
+- **226 tests, all passing**, exercising **69,146 sampled moments** compared field by field against upstream.
 - The golden corpus is produced by `scripts/gen-corpus.py` running a **pinned upstream commit** (`f4c6118665253f897889290d8630f9b4cb3a4404`); that revision is recorded in every corpus file, and regeneration refuses to run against a different upstream commit — so the baseline cannot silently drift.
 - Deliberate deviations from upstream are documented in [docs/PORTING-NOTES.md](docs/PORTING-NOTES.md), each pinned by its own test.
 
@@ -412,6 +413,7 @@ Sampling covers: uniform sampling across the full 1900–2100 span, dense ten-mi
 - **The center palace has no gate** — `doors` never carries a `中` key in the hour and minute charts.
 - **Memoized derivations and complete chart results are deep-frozen** to prevent a caller from mutating shared cached state; not every object exported by `@kinqimen/core` is immutable.
 - **`check_patterns` covers only the three patterns upstream implements**, not the full canon of Qi Men patterns. Others must be read by the caller from the plates, gates, stars and gods directly.
+- **Month and year pillars switch at the solar term's exact minute, not for the whole day** (a deliberate departure from upstream's day-granular convention). On a 節 day before the term's minute the month pillar still belongs to the previous month; on 立春 day before the 立春 minute the year pillar still belongs to the previous year. This keeps the month pillar consistent with the 節氣 field of the same chart; see [docs/PORTING-NOTES.md](docs/PORTING-NOTES.md) D9.
 
 ---
 

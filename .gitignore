@@ -12,3 +12,4 @@ scripts/upstream/
 
 # local agent settings
 .claude/settings.local.json
+.opencode/

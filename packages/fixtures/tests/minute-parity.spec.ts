@@ -20,8 +20,16 @@ function diffChart(chart: ReturnType<typeof buildKeChart>, want: Upstream): stri
     out.push(`${field}: got ${JSON.stringify(got)}, want ${JSON.stringify(expected)}`);
 
   const p = chart.pillars;
-  const ganzhi = `${p.year}年${p.month}月${p.day}日${p.hour}時${p.ke}分`;
-  if (ganzhi !== want["干支"]) say("干支", ganzhi, want["干支"]);
+  // Year/month switch at the exact term minute (deviations.spec.ts D9); compare
+  // day/hour/ke only. The 盤面 is untouched by D9.
+  const gz = want["干支"] as string;
+  const di = gz.indexOf("日"), hi = gz.indexOf("時"), ki = gz.indexOf("分");
+  const wantDay = gz.slice(di - 2, di);
+  const wantHour = gz.slice(hi - 2, hi);
+  const wantKe = gz.slice(ki - 2, ki);
+  if (p.day !== wantDay) say("日柱", p.day, wantDay);
+  if (p.hour !== wantHour) say("時柱", p.hour, wantHour);
+  if (p.ke !== wantKe) say("刻柱", p.ke, wantKe);
 
   const scalars: Array<[string, unknown]> = [
     ["排盤方式", chart.methodName],

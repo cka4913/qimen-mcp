@@ -53,6 +53,9 @@ Two substantive changes, both scoped after checking what upstream actually suppo
 
 Second: the user asked whether 年命宮 (anchoring a reading on the querent's birth-year branch, common in some schools for personal-fortune questions) applies here, and whether upstream requires it. It does not — a direct search of `kinqimen.py`, `config.py`, `jieqi.py`, `app.py` and the upstream README turns up zero occurrences of 生年, 命主, 性別, 命宮, or `gender`; `Qimen.__init__` takes only the query moment. 年命宮 is documented as an explicitly optional, non-core supplementary lens: birth year is asked for once and skipped if not given, gender is not asked for at all (it mainly steers multi-year 流年 progression, which is out of scope for a single chart), and the branch-to-palace correspondence reuses the same 12-branch/8-palace table `sixwu.ts` already carries for 閉六戊 — no new engine code, purely a documentation addition, consistent with the project's facts-engine/doctrine split.
 
+### P11 — Month/year pillar exact-term switching ✅
+`ganzhi.ts` month and year pillars switched to the exact 節 / 立春 minute from the project's own sxtwl table, closing the internal contradiction between a chart's `節氣` field and its `月柱` on term days (upstream issue #53). Verified independently before coding: the arithmetic `(year-4) mod 60` matches `getYearInGanZhiByLiChun` on all of 1900–2101, and `pillars().month`/`.year` have no downstream consumer (排局, plates, 馬星, 長生, 格局, 閉六戊 read only `.day`/`.hour`/`.ke`), so no 盤面 field changed. Pinned by D9 in `deviations.spec.ts` (month↔節氣 self-consistency, year↔立春, bounded divergence census) plus a per-節 boundary suite; the calendar/hour/minute parity suites now compare only the day/hour/ke pillars directly. See [docs/PORTING-NOTES.md](docs/PORTING-NOTES.md) D9.
+
 ---
 
 ## Not doing

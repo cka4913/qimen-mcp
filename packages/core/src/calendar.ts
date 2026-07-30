@@ -154,6 +154,38 @@ export function jieqiOnDay(year: number, month: number, day: number): JieqiMomen
 }
 
 /**
+ * The exact moment of one named solar term in a given year, read straight from
+ * the table by its index in `JIEQI_SXTWL_ORDER`. Used where a boundary must be
+ * compared to the *minute* (the year/月 pillar switch at 立春 / the 節) rather
+ * than to the day. Throws `DATETIME_OUT_OF_RANGE` for years the table does not
+ * cover, and `TABLE_LOOKUP_FAILED` for an unknown term name (a negative index
+ * would otherwise silently slice the tail of the packed string).
+ */
+export function jieqiMomentInYear(year: number, name: string): JieqiMoment {
+  const packed = JIEQI_PACKED[year - JIEQI_TABLE_START_YEAR];
+  if (packed === undefined) {
+    throw new KinqimenError(
+      "DATETIME_OUT_OF_RANGE",
+      `year ${year} is outside the solar-term table (${JIEQI_TABLE_START_YEAR}–${JIEQI_TABLE_END_YEAR})`,
+      { year }
+    );
+  }
+  const idx = JIEQI_SXTWL_ORDER.indexOf(name);
+  if (idx < 0) {
+    throw new KinqimenError("TABLE_LOOKUP_FAILED", `${name} is not a solar term`, { name });
+  }
+  const at = idx * 8;
+  return {
+    name,
+    year,
+    month: Number(packed.slice(at, at + 2)),
+    day: Number(packed.slice(at + 2, at + 4)),
+    hour: Number(packed.slice(at + 4, at + 6)),
+    minute: Number(packed.slice(at + 6, at + 8)),
+  };
+}
+
+/**
  * `jieqi.get_jieqi_start_date` — the solar term on this day, else walk back
  * day by day until one is found.
  */

@@ -16,7 +16,7 @@
  */
 import { Solar } from "lunar-javascript";
 import { DI_ZHI, JIAZI, TIAN_GAN } from "./constants.js";
-import { addDays, assertSupported, dtKey, lunarDate, type CivilDateTime } from "./calendar.js";
+import { addDays, assertSupported, beforeJieqiStart, compare, currentJieqiStart, dtKey, jieqiMomentInYear, nextJieqiStart, type CivilDateTime } from "./calendar.js";
 import { memoize, multiKeyGet, rotate, splitList, zipRecord } from "./util.js";
 import { KinqimenError, must } from "./errors.js";
 
@@ -59,6 +59,23 @@ const FIVE_HORSES: ReadonlyArray<readonly [readonly string[], string]> = [
   [[..."甲己"], "庚午"],
   [[..."乙庚"], "壬午"],
 ];
+
+/** A 節 (not 氣) and the month branch it opens. */
+const JIE_TO_MONTH_BRANCH: Record<string, string> = {
+  立春: "寅", 驚蟄: "卯", 清明: "辰", 立夏: "巳", 芒種: "午", 小暑: "未",
+  立秋: "申", 白露: "酉", 寒露: "戌", 立冬: "亥", 大雪: "子", 小寒: "丑",
+};
+
+/** A 氣 → the 節 immediately before it, which still governs the month branch. */
+const QI_TO_PRECEDING_JIE: Record<string, string> = {
+  雨水: "立春", 春分: "驚蟄", 穀雨: "清明", 小滿: "立夏", 夏至: "芒種", 大暑: "小暑",
+  處暑: "立秋", 秋分: "白露", 霜降: "寒露", 小雪: "立冬", 冬至: "大雪", 大寒: "小寒",
+};
+
+/** Month branch → its position in the 寅-first order 五虎遁 walks (正月..腊月). */
+const BRANCH_TO_LUNAR_MONTH: Record<string, number> = {
+  寅: 1, 卯: 2, 辰: 3, 巳: 4, 午: 5, 未: 6, 申: 7, 酉: 8, 戌: 9, 亥: 10, 子: 11, 丑: 12,
+};
 
 /**
  * Upstream's lookup habit: try the stem, and if that misses try the branch.
@@ -125,19 +142,45 @@ function resolveDateHour(dt: CivilDateTime): { year: number; month: number; day:
   return { year: dt.year, month: dt.month, day: dt.day, hour: dt.hour };
 }
 
+/** The month branch a moment falls in, from the exact 節 boundaries (D9). */
+function monthBranchAt(moment: CivilDateTime): string {
+  // Read the term period directly from the table-backed helpers rather than
+  // `jieqiName`, which asserts the supported range: the 23:00 rollover can push
+  // a valid 2100-12-31 23:xx query into year 2101, still inside the table
+  // (1898–2102) but outside `assertSupported`'s 1900–2100.
+  const start = currentJieqiStart(moment);
+  const next = nextJieqiStart(moment);
+  const term = compare(start, moment) <= 0 && compare(moment, next) < 0 ? start.name : beforeJieqiStart(moment).name;
+  const jie = term in JIE_TO_MONTH_BRANCH ? term : must(QI_TO_PRECEDING_JIE[term], "preceding 節 for 氣", { term });
+  return must(JIE_TO_MONTH_BRANCH[jie], "month branch for jieqi", { jie });
+}
+
+/** The year ganzhi, switching at the exact 立春 moment rather than at 00:00 (D9). */
+function yearGanZhiExact(moment: CivilDateTime): string {
+  const lichun = jieqiMomentInYear(moment.year, "立春");
+  const effectiveYear = compare(moment, lichun) >= 0 ? moment.year : moment.year - 1;
+  return must(JIAZI[((((effectiveYear - 4) % 60) + 60) % 60)], "year ganzhi", { effectiveYear });
+}
+
 /** The first four pillars — `jieqi.gangzhi1` minus the 刻 column. */
 function fourPillars(dt: CivilDateTime): { year: string; month: string; day: string; hour: string } {
+  // The 23:00 rollover (晚子時) belongs to the *day* and *hour* pillars only:
+  // 23:00–23:59 is the 子時 attributed to the following calendar day. The year
+  // and month pillars are judged against the civil moment the user actually
+  // gave, exactly as `jieqiName` is — otherwise a 節/立春 in the 23:xx hour would
+  // see the month/year advance a minute before `節氣` does, leaving the same
+  // chart self-contradictory (the very inconsistency #53 set out to remove).
   const r = resolveDateHour(dt);
   const lunar = Solar.fromYmd(r.year, r.month, r.day).getLunar();
-  const yearPillar = lunar.getYearInGanZhiByLiChun();
   const dayPillar = lunar.getDayInGanZhi();
-  // Below 1900 upstream distrusts the library's month pillar and derives it by
-  // 五虎遁 from the lunar month instead. Kept, though `assertSupported` makes
-  // the branch unreachable through the public API.
-  const monthPillar =
-    dt.year < 1900
-      ? (must(lunarMonthPillars(yearPillar)[lunarDate(dt.year, dt.month, dt.day).month], "lunar month pillar", { ...dt }))
-      : lunar.getMonthInGanZhi();
+  const yearPillar = yearGanZhiExact(dt);
+  // Month branch switches at the exact 節 minute; the stem follows by 五虎遁 (D9).
+  const branch = monthBranchAt(dt);
+  const monthPillar = must(
+    lunarMonthPillars(yearPillar)[must(BRANCH_TO_LUNAR_MONTH[branch], "lunar month for branch", { branch })],
+    "month pillar",
+    { ...dt }
+  );
   const hourPillar = must(lunarHourPillars(dayPillar)[hourBranch(r.hour)], "hour pillar", { ...dt });
   return { year: yearPillar, month: monthPillar, day: dayPillar, hour: hourPillar };
 }

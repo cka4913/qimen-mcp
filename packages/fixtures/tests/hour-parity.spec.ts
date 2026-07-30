@@ -27,8 +27,16 @@ function diffChart(chart: QimenChart, want: Upstream): string[] {
     out.push(`${field}: got ${JSON.stringify(got)}, want ${JSON.stringify(expected)}`);
 
   const p = chart.pillars;
-  const ganzhi = `${p.year}年${p.month}月${p.day}日${p.hour}時`;
-  if (ganzhi !== want["干支"]) say("干支", ganzhi, want["干支"]);
+  // Year/month now switch at the exact term minute (deviations.spec.ts D9) and
+  // so diverge from upstream's day-granular corpus on 節 days before the term
+  // minute. The 盤面 is untouched by D9; only the day/hour pillars stay
+  // directly comparable here.
+  const gz = want["干支"] as string;
+  const di = gz.indexOf("日"), hi = gz.indexOf("時");
+  const wantDay = gz.slice(di - 2, di);
+  const wantHour = gz.slice(hi - 2, hi);
+  if (p.day !== wantDay) say("日柱", p.day, wantDay);
+  if (p.hour !== wantHour) say("時柱", p.hour, wantHour);
 
   const scalars: Array<[string, unknown]> = [
     ["排盤方式", chart.methodName],
