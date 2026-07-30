@@ -19,7 +19,7 @@ import { dtKey, jieqiName, lunarDate, type CivilDateTime, type LunarDate } from 
 import { pillars, xunHead, xunStem, type Pillars } from "./ganzhi.js";
 import { juKe } from "./ju.js";
 import { chunk, deepFreeze, invertRecord, memoize, rotate, zipRecord } from "./util.js";
-import { KinqimenError, must } from "./errors.js";
+import { QimenError, must } from "./errors.js";
 import { hourKeKong, horses } from "./kong-horse.js";
 import { juDay, METHOD_NAMES } from "./chart.js";
 import { tianyi, type Method, type ZhifuZhishi } from "./zhifu.js";
@@ -184,7 +184,7 @@ export function angan(dt: CivilDateTime): AnganResult {
   const key = `${keKookKey(dt)}${pillars(dt).ke}`;
   const row = ANGAN[key];
   if (row === undefined) {
-    throw new KinqimenError("ANGAN_NOT_FOUND", `no 暗干 row for ${key}`, { key });
+    throw new QimenError("ANGAN_NOT_FOUND", `no 暗干 row for ${key}`, { key });
   }
   return {
     hidden: zipRecord(row.slice(0, -1), EIGHT_GUA),

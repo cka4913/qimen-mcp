@@ -1,5 +1,5 @@
 {
-  "name": "@kinqimen/fixtures",
+  "name": "@cka4913/qimen-fixtures",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -9,6 +9,6 @@
     "build": "tsc -b"
   },
   "dependencies": {
-    "@kinqimen/core": "workspace:*"
+    "@cka4913/qimen-core": "workspace:*"
   }
 }

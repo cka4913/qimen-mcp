@@ -290,7 +290,7 @@ describe("results are immutable", () => {
   it("a chart cannot be mutated, so one caller cannot poison another's", async () => {
     // Regression: the memo caches share sub-objects between callers. A caller
     // that mutated one used to change every later chart for the same moment.
-    const { buildChart } = await import("@kinqimen/core");
+    const { buildChart } = await import("@cka4913/qimen-core");
     const first = buildChart({ year: 2024, month: 6, day: 15, hour: 14, minute: 30 }, "zhirun");
     expect(() => {
       (first.skyPlate as Record<string, string>)["坤"] = "XXX";

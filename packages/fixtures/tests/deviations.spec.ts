@@ -9,7 +9,7 @@
  * Prose for each entry is in docs/PORTING-NOTES.md.
  */
 import { describe, expect, it } from "vitest";
-import { addDays, compare, hourBranch, jieqiMomentInYear, jieqiName, pillars, JIAZI } from "@kinqimen/core";
+import { addDays, compare, hourBranch, jieqiMomentInYear, jieqiName, pillars, JIAZI } from "@cka4913/qimen-core";
 import {
   EPHEM_PRECISION_BREAKDOWN,
   label,

@@ -6,7 +6,7 @@
  * and the whole 芒種→夏至 and 大雪→冬至 置閏 windows day by day.
  */
 import { describe, expect, it } from "vitest";
-import { juChaibu, juKe, juZhirun, zhirunRaw } from "@kinqimen/core";
+import { juChaibu, juKe, juZhirun, zhirunRaw } from "@cka4913/qimen-core";
 import { label, loadJu, toCivil, upstreamHourIsSound } from "../src/index.js";
 
 const all = loadJu();

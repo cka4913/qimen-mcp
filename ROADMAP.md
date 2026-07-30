@@ -32,7 +32,7 @@ Memoisation was added here — a chart derives its bureau eight times over, and 
 Nine tools, zod input and output schemas, compile-time drift guard, stdio smoke tests against the real compiled binary.
 
 ### P7 — Text view, skill, docs ✅
-`render-text.ts`, `skills/kinqimen/SKILL.md`, five docs. The skill is held to reality by `skill.spec.ts`, which caught two tools the skill had failed to mention.
+`render-text.ts`, `skills/qimen/SKILL.md`, five docs. The skill is held to reality by `skill.spec.ts`, which caught two tools the skill had failed to mention.
 
 ### P8 — Review follow-up ✅
 An external read-only review found eight issues; all eight are fixed and each has a test.
@@ -44,10 +44,10 @@ The rest: a `glossary` argument that was declared but never read (removed — `l
 ### P9 — Documentation pass ✅
 README rewritten as a full Traditional Chinese section followed by a full English section (no interleaving), with badges and a public-facing structure: features, design principles, architecture, install, client setup, tool table, example, testing and trust, known limitations, documentation index, contributing, notices, license. `docs/HERMES.md` rewritten the same way; its client-facing 中文 prose was previously Cantonese-toned and is now Traditional Chinese book language.
 
-Two claims that had quietly grown broader than the code were narrowed in README and `docs/AI-AGENT-INTEGRATION.md`: "results are deep-frozen" only holds for memoized derivations and the four tools that return an assembled chart (`get_qimen_chart`, `get_qimen_chart_minute`, `get_golden_mirror_chart`, `check_patterns`) — a handful of non-memoized `@kinqimen/core` helpers (`closedSixwuForXun`, `lookupReference`, and the standalone `panDoor`/`panStar`/`panGod`) return a fresh, unfrozen object per call, which carries no risk because nothing shares it. And "impossible dates are rejected" holds at the MCP tool layer, not for every low-level calendar helper — `currentJieqiStart` and `jieqiOnDay` do not call `assertSupported`.
+Two claims that had quietly grown broader than the code were narrowed in README and `docs/AI-AGENT-INTEGRATION.md`: "results are deep-frozen" only holds for memoized derivations and the four tools that return an assembled chart (`get_qimen_chart`, `get_qimen_chart_minute`, `get_golden_mirror_chart`, `check_patterns`) — a handful of non-memoized `@cka4913/qimen-core` helpers (`closedSixwuForXun`, `lookupReference`, and the standalone `panDoor`/`panStar`/`panGod`) return a fresh, unfrozen object per call, which carries no risk because nothing shares it. And "impossible dates are rejected" holds at the MCP tool layer, not for every low-level calendar helper — `currentJieqiStart` and `jieqiOnDay` do not call `assertSupported`.
 
 ### P10 — Skill content revision: 年命宮, disclosed defaults ✅
-`skills/kinqimen/SKILL.md` was still written in Cantonese-toned prose inherited from an early draft; rewritten in standard written Chinese throughout (the same cleanup P9 gave the public docs, extended to the one file it had missed).
+`skills/qimen/SKILL.md` was still written in Cantonese-toned prose inherited from an early draft; rewritten in standard written Chinese throughout (the same cleanup P9 gave the public docs, extended to the one file it had missed).
 
 Two substantive changes, both scoped after checking what upstream actually supports. First: `qimen_ju_name_chaibu`/`qimen_ju_name_zhirun` were being presented as "ask the user, or run both" with no default, which meant every un-scoped question stalled on a clarifying question the user usually didn't have an opinion on. The flow now defaults to 拆補 and says so in the output, with 置閏 offered rather than silently withheld — hard rule 4 was reworded to require the disclosure rather than forbid a default outright.
 

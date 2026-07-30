@@ -7,7 +7,7 @@
  */
 import { DI_ZHI, DOOR_R, DOOR_WUXING, EIGHT_GUA, JIEQI_CYCLE, STAR_R, STAR_WUXING, TIAN_GAN } from "./constants.js";
 import { multiKeyGet, rotate, zipRecord } from "./util.js";
-import { KinqimenError } from "./errors.js";
+import { QimenError } from "./errors.js";
 import { DOOR_FULL_NAMES, GOD_FULL_NAMES, STAR_FULL_NAMES } from "./stars-doors-gods.js";
 
 export type ReferenceCategory = "door" | "star" | "god" | "stem" | "branch" | "palace" | "jieqi";
@@ -45,7 +45,7 @@ export function seasonalStrength(jieqi: string): { season: string; strength: Rec
   ];
   const season = multiKeyGet(seasons, jieqi);
   if (season === undefined) {
-    throw new KinqimenError("UNKNOWN_REFERENCE_KEY", `unknown solar term ${jieqi}`, { jieqi });
+    throw new QimenError("UNKNOWN_REFERENCE_KEY", `unknown solar term ${jieqi}`, { jieqi });
   }
   const orders: Record<string, string> = { 春: "木火水金土", 夏: "火土木水金", 秋: "金水土火木", 冬: "水木金土火" };
   const levels = [..."旺相休囚死"];
@@ -70,7 +70,7 @@ function entry(category: ReferenceCategory, key: string, name: string, extra: Re
  */
 export function lookupReference(category: ReferenceCategory, key: string): ReferenceEntry {
   const fail = () => {
-    throw new KinqimenError("UNKNOWN_REFERENCE_KEY", `no ${category} entry for ${key}`, { category, key });
+    throw new QimenError("UNKNOWN_REFERENCE_KEY", `no ${category} entry for ${key}`, { category, key });
   };
 
   switch (category) {

@@ -2,7 +2,7 @@
  * P5 gate, part one: 金函玉鏡 against upstream's `gpan()`.
  */
 import { describe, expect, it } from "vitest";
-import { buildGoldenMirrorChart } from "@kinqimen/core";
+import { buildGoldenMirrorChart } from "@cka4913/qimen-core";
 import { label, loadGolden, toCivil, upstreamHourIsSound } from "../src/index.js";
 
 const all = loadGolden();

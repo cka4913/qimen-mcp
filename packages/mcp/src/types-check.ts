@@ -2,7 +2,7 @@
  * Compile-time drift guard between the output schemas and the core result types.
  *
  * There is no runtime code here — only type-level assertions. Rename a field in
- * `@kinqimen/core`, change its type, add one, or drop one, and `tsc` fails in
+ * `@cka4913/qimen-core`, change its type, add one, or drop one, and `tsc` fails in
  * this file rather than the mismatch reaching a client as a runtime output
  * validation error.
  *
@@ -13,7 +13,7 @@
  * which is what actually drifts.
  */
 import type { z } from "zod";
-import type { GoldenMirrorChart, KeChart, QimenChart, SixwuPath, ZhirunRaw } from "@kinqimen/core";
+import type { GoldenMirrorChart, KeChart, QimenChart, SixwuPath, ZhirunRaw } from "@cka4913/qimen-core";
 import type {
   goldenMirrorChartSchema,
   keChartSchema,

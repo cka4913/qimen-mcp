@@ -1,13 +1,13 @@
-# kinqimen-mcp
+# qimen-mcp
 
 > 奇門遁甲 deterministic facts engine，以 Model Context Protocol（MCP）工具形式提供給 AI agent 使用。
 
-[![CI](https://github.com/cka4913/kinqimen-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/cka4913/kinqimen-mcp/actions/workflows/ci.yml)
-[![Version](https://img.shields.io/badge/version-0.1.0-blue)](https://github.com/cka4913/kinqimen-mcp/releases)
+[![CI](https://github.com/cka4913/qimen-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/cka4913/qimen-mcp/actions/workflows/ci.yml)
+[![Version](https://img.shields.io/badge/version-0.1.0-blue)](https://github.com/cka4913/qimen-mcp/releases)
 [![Node.js](https://img.shields.io/badge/node-%E2%89%A522-339933?logo=node.js&logoColor=white)](https://nodejs.org)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org)
 [![MCP SDK](https://img.shields.io/badge/MCP%20SDK-%5E1.29-000000)](https://github.com/modelcontextprotocol/typescript-sdk)
-[![License: MIT](https://img.shields.io/github/license/cka4913/kinqimen-mcp)](LICENSE)
+[![License: MIT](https://img.shields.io/github/license/cka4913/qimen-mcp)](LICENSE)
 
 > MCP protocol 版本由 `@modelcontextprotocol/sdk` 於連線時自動協商，本專案不自行釘死單一 protocol 版本。目前開發與測試以 `2024-11-05` initialize 進行驗證。
 
@@ -15,9 +15,9 @@
 
 ## 專案簡介
 
-`kinqimen-mcp` 是奇門遁甲（時家、刻家、金函玉鏡）的 deterministic 計算引擎，以純 TypeScript 實作，並透過 stdio MCP server 對外提供結構化的盤面資料。
+`qimen-mcp` 是奇門遁甲（時家、刻家、金函玉鏡）的 deterministic 計算引擎，以純 TypeScript 實作，並透過 stdio MCP server 對外提供結構化的盤面資料。
 
-呼叫任何一個排盤 tool，得到的是一組事實：天地兩盤各宮位配置何種天干、值符值使落在哪個宮位、九星八門八神的排列、旬空與馬星、每個宮位的十二長生階段。**引擎本身不做吉凶判斷，亦不產生敘述性解讀**——這部分屬於呼叫端 agent 的責任。專案隨附 [`skills/kinqimen/SKILL.md`](skills/kinqimen/SKILL.md)，作為 agent 進行解讀時的參考流程，但該文件所載的取用神與格局判斷屬於未經流派校訂的草稿，使用前應自行核實。
+呼叫任何一個排盤 tool，得到的是一組事實：天地兩盤各宮位配置何種天干、值符值使落在哪個宮位、九星八門八神的排列、旬空與馬星、每個宮位的十二長生階段。**引擎本身不做吉凶判斷，亦不產生敘述性解讀**——這部分屬於呼叫端 agent 的責任。專案隨附 [`skills/qimen/SKILL.md`](skills/qimen/SKILL.md)，作為 agent 進行解讀時的參考流程，但該文件所載的取用神與格局判斷屬於未經流派校訂的草稿，使用前應自行核實。
 
 本專案由 [kentang2017/kinqimen](https://github.com/kentang2017/kinqimen)（Python 實作，附 Streamlit 前端）移植而成。上游 repository 未有改動；本專案抽取其計算邏輯，移除 UI 與報告產生器，並以 `lunar-javascript` 取代 `sxtwl`／`ephem` 兩個原生擴充套件。移植的忠實度並非單憑聲稱，而是透過測試逐欄驗證——詳見下方「測試與可信度」一節。
 
@@ -56,7 +56,7 @@ packages/
 ├─ mcp/        stdio MCP server——9 個 tool、zod schema、錯誤映射
 └─ fixtures/   由上游記錄的 golden corpus，以及逐欄比對測試（僅供測試使用）
 skills/
-└─ kinqimen/SKILL.md    供 agent 載入的解讀程序（草稿）
+└─ qimen/SKILL.md    供 agent 載入的解讀程序（草稿）
 scripts/
 ├─ gen-corpus.py        執行上游引擎並記錄輸出（手動執行，非 CI 流程）
 ├─ gen-jieqi-table.py   由 sxtwl 產生節氣時刻表
@@ -82,8 +82,8 @@ scripts/
 ## 安裝與建置
 
 ```sh
-git clone https://github.com/cka4913/kinqimen-mcp.git
-cd kinqimen-mcp
+git clone https://github.com/cka4913/qimen-mcp.git
+cd qimen-mcp
 pnpm install
 pnpm build     # → packages/mcp/dist/index.js
 pnpm test
@@ -93,7 +93,7 @@ pnpm test
 
 ```sh
 node packages/mcp/dist/index.js
-# kinqimen-mcp v0.1.0 listening on stdio
+# qimen-mcp v0.1.0 listening on stdio
 ```
 
 無需設定任何環境變數。
@@ -107,9 +107,9 @@ Server 以 stdio 方式啟動，任何支援 stdio transport 的 MCP client 皆�
 ```json
 {
   "mcpServers": {
-    "kinqimen": {
+    "qimen": {
       "command": "node",
-      "args": ["/absolute/path/to/kinqimen-mcp/packages/mcp/dist/index.js"]
+      "args": ["/absolute/path/to/qimen-mcp/packages/mcp/dist/index.js"]
     }
   }
 }
@@ -167,7 +167,7 @@ Claude Desktop、Claude Code 等個別 client 的詳細設定步驟、skill 安�
 
 ## 測試與可信度
 
-- **226 個測試，全數通過**，涵蓋 **69,146 個抽樣時刻**的逐欄比對。
+- **230 個測試，全數通過**，涵蓋 **69,146 個抽樣時刻**的逐欄比對。
 - Golden corpus 由 `scripts/gen-corpus.py` 執行**固定版本**的上游 Python 引擎產生（`f4c6118665253f897889290d8630f9b4cb3a4404`），並將該版本記錄於每份 corpus 檔案；重新產生時若上游版本不符會直接失敗，避免基準悄然漂移。
 - 已知刻意偏離之處記錄於 [docs/PORTING-NOTES.md](docs/PORTING-NOTES.md)，並各自有測試釘住。
 
@@ -178,12 +178,12 @@ Claude Desktop、Claude Code 等個別 client 的詳細設定步驟、skill 安�
 ## 已知限制與重要行為
 
 - **支援範圍為 1900–2100 年**，此為節氣時刻表的涵蓋範圍。
-- **排盤 tool 會拒絕不存在的民用日期**（例如 2024-02-30），不會將其靜默正規化為其他日期。此驗證適用於 MCP tool 及主要盤面建構函式；`@kinqimen/core` 部分底層曆法輔助函式（例如 `currentJieqiStart`、`jieqiOnDay`）未附帶相同驗證，直接使用時請自行檢查輸入。
+- **排盤 tool 會拒絕不存在的民用日期**（例如 2024-02-30），不會將其靜默正規化為其他日期。此驗證適用於 MCP tool 及主要盤面建構函式；`@cka4913/qimen-core` 部分底層曆法輔助函式（例如 `currentJieqiStart`、`jieqiOnDay`）未附帶相同驗證，直接使用時請自行檢查輸入。
 - **不做時區轉換、日光節約或真太陽時校正**。引擎排的是你傳入的鐘錶時間本身。
 - **23:00 起計為次日子時**（晚子時慣例），22:59 與 23:01 會得出不同日柱。
 - **值符入中宮時，天盤只有八個宮位**——`skyPlate` 缺少 `中` key 屬正常現象（中寄坤），並非資料遺漏。
 - **中宮無門**——`doors` 在時家與刻家盤面中不含 `中` key。
-- **具快取推導結果與完整盤面結果會進行深層凍結**，避免呼叫端修改共享快取狀態；並非全部 `@kinqimen/core` 匯出函式的回傳值皆為 immutable。
+- **具快取推導結果與完整盤面結果會進行深層凍結**，避免呼叫端修改共享快取狀態；並非全部 `@cka4913/qimen-core` 匯出函式的回傳值皆為 immutable。
 - **`check_patterns` 只涵蓋三個上游有實作的格局**，並非奇門格局全集；其餘吉凶格局需由呼叫端自行由天地盤與門星神組合判斷。
 - **月柱與年柱按節氣的精確時刻切換，而非整日**（刻意偏離上游 day-granular 慣例）。節氣當日、節氣時刻之前，月柱仍屬上一個月；立春當日、立春時刻之前，年柱仍屬上一年。目的是令月柱與同盤的節氣欄位自洽；詳見 [docs/PORTING-NOTES.md](docs/PORTING-NOTES.md) D9。
 
@@ -204,14 +204,14 @@ Claude Desktop、Claude Code 等個別 client 的詳細設定步驟、skill 安�
 
 ## 貢獻方式
 
-歡迎透過 [GitHub Issues](https://github.com/cka4913/kinqimen-mcp/issues) 回報問題或提出功能建議。目前專案未設有正式的 `CONTRIBUTING.md` 或 issue template；提交 pull request 前建議先開 issue 討論方向。修改演算法相關程式碼時，請確保 `pnpm test` 全數通過，並於改動涉及與上游行為不同之處時同步更新 [docs/PORTING-NOTES.md](docs/PORTING-NOTES.md)。
+歡迎透過 [GitHub Issues](https://github.com/cka4913/qimen-mcp/issues) 回報問題或提出功能建議。目前專案未設有正式的 `CONTRIBUTING.md` 或 issue template；提交 pull request 前建議先開 issue 討論方向。修改演算法相關程式碼時，請確保 `pnpm test` 全數通過，並於改動涉及與上游行為不同之處時同步更新 [docs/PORTING-NOTES.md](docs/PORTING-NOTES.md)。
 
 ---
 
 ## 重要聲明
 
 - 本專案是計算與研究工具，**並非醫療、法律或財務專業意見**。涉及健康、法律、財務等議題的查詢，結果僅供參考，請諮詢相關專業人士。
-- [`skills/kinqimen/SKILL.md`](skills/kinqimen/SKILL.md) 所載的解讀程序**屬未經流派校訂的草稿**，不同傳承對用神取法與格局判斷或有出入，使用前請自行核實。
+- [`skills/qimen/SKILL.md`](skills/qimen/SKILL.md) 所載的解讀程序**屬未經流派校訂的草稿**，不同傳承對用神取法與格局判斷或有出入，使用前請自行核實。
 - 引擎本身的移植忠實度（parity）與 skill 文件的解讀學理，是兩件獨立的事：前者逐欄驗證，後者未經驗證。
 
 ---
@@ -226,16 +226,16 @@ Claude Desktop、Claude Code 等個別 client 的詳細設定步驟、skill 安�
 
 <br>
 
-# kinqimen-mcp (English)
+# qimen-mcp (English)
 
 > A deterministic Qi Men Dun Jia (奇門遁甲) facts engine, exposed as Model Context Protocol (MCP) tools for AI agents.
 
-[![CI](https://github.com/cka4913/kinqimen-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/cka4913/kinqimen-mcp/actions/workflows/ci.yml)
-[![Version](https://img.shields.io/badge/version-0.1.0-blue)](https://github.com/cka4913/kinqimen-mcp/releases)
+[![CI](https://github.com/cka4913/qimen-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/cka4913/qimen-mcp/actions/workflows/ci.yml)
+[![Version](https://img.shields.io/badge/version-0.1.0-blue)](https://github.com/cka4913/qimen-mcp/releases)
 [![Node.js](https://img.shields.io/badge/node-%E2%89%A522-339933?logo=node.js&logoColor=white)](https://nodejs.org)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org)
 [![MCP SDK](https://img.shields.io/badge/MCP%20SDK-%5E1.29-000000)](https://github.com/modelcontextprotocol/typescript-sdk)
-[![License: MIT](https://img.shields.io/github/license/cka4913/kinqimen-mcp)](LICENSE)
+[![License: MIT](https://img.shields.io/github/license/cka4913/qimen-mcp)](LICENSE)
 
 > The MCP protocol version is negotiated automatically by `@modelcontextprotocol/sdk` at connect time; this project does not pin a single protocol version. Development and tests currently exercise the `2024-11-05` initialize handshake.
 
@@ -243,9 +243,9 @@ Claude Desktop、Claude Code 等個別 client 的詳細設定步驟、skill 安�
 
 ## What this is
 
-`kinqimen-mcp` is a deterministic calculation engine for Qi Men Dun Jia (時家/刻家/金函玉鏡 — hour-based, minute-based, and daily charts), implemented in pure TypeScript and exposed over a stdio MCP server as structured chart data.
+`qimen-mcp` is a deterministic calculation engine for Qi Men Dun Jia (時家/刻家/金函玉鏡 — hour-based, minute-based, and daily charts), implemented in pure TypeScript and exposed over a stdio MCP server as structured chart data.
 
-Call any chart tool and you get back facts: which stem sits in which palace on both plates, where the Duty Star (值符) and Duty Gate (值使) landed, the arrangement of the nine stars, eight gates and eight gods, the void branches (旬空) and the three horse stars (馬星), and the twelve life stages of every palace. **The engine does not judge fortune or produce narrative interpretation** — that is the calling agent's responsibility. The repository ships [`skills/kinqimen/SKILL.md`](skills/kinqimen/SKILL.md) as a reference procedure for agents doing that interpretation, but the 用神-selection and pattern-reading material in that document is an unreviewed draft assembled from common doctrine and should be verified against your own tradition before use.
+Call any chart tool and you get back facts: which stem sits in which palace on both plates, where the Duty Star (值符) and Duty Gate (值使) landed, the arrangement of the nine stars, eight gates and eight gods, the void branches (旬空) and the three horse stars (馬星), and the twelve life stages of every palace. **The engine does not judge fortune or produce narrative interpretation** — that is the calling agent's responsibility. The repository ships [`skills/qimen/SKILL.md`](skills/qimen/SKILL.md) as a reference procedure for agents doing that interpretation, but the 用神-selection and pattern-reading material in that document is an unreviewed draft assembled from common doctrine and should be verified against your own tradition before use.
 
 This project is ported from [kentang2017/kinqimen](https://github.com/kentang2017/kinqimen) (Python, with a Streamlit front end). The upstream repository is untouched; this one extracts the calculation logic, drops the UI and report generator, and replaces the `sxtwl`/`ephem` native extensions with `lunar-javascript`. Faithfulness to upstream is not merely claimed — it is verified field by field; see "Testing and Trust" below.
 
@@ -284,7 +284,7 @@ packages/
 ├─ mcp/        stdio MCP server — 9 tools, zod schemas, error mapping
 └─ fixtures/   golden corpus recorded from upstream + the parity test suites (test-only)
 skills/
-└─ kinqimen/SKILL.md    interpretation procedure for an agent to load (draft)
+└─ qimen/SKILL.md    interpretation procedure for an agent to load (draft)
 scripts/
 ├─ gen-corpus.py        record upstream's output (run by hand, not part of CI)
 ├─ gen-jieqi-table.py   generate the solar-term table from sxtwl
@@ -293,7 +293,7 @@ scripts/
 
 `core` has no knowledge of MCP; `mcp` adds schemas, error mapping and tool descriptions. `fixtures` is test-only and never loaded at runtime.
 
-Memoized derivations, and the complete chart results returned by `get_qimen_chart`, `get_qimen_chart_minute`, `get_golden_mirror_chart` and `check_patterns`, are deep-frozen to prevent a caller from mutating shared cached state. Not every object `@kinqimen/core` exports is immutable — see "Known Limitations and Behaviors" below.
+Memoized derivations, and the complete chart results returned by `get_qimen_chart`, `get_qimen_chart_minute`, `get_golden_mirror_chart` and `check_patterns`, are deep-frozen to prevent a caller from mutating shared cached state. Not every object `@cka4913/qimen-core` exports is immutable — see "Known Limitations and Behaviors" below.
 
 Every tool with a fixed result shape declares both an `inputSchema` and an `outputSchema`, so a client can read the full contract from `tools/list`. Output schemas are guarded twice: at compile time (`types-check.ts` asserts each schema is mutually assignable with its corresponding core type) and at runtime (tests parse real engine output through the schemas). Renaming a field in `core` without updating the schema fails the build.
 
@@ -310,8 +310,8 @@ Every tool with a fixed result shape declares both an `inputSchema` and an `outp
 ## Install and Build
 
 ```sh
-git clone https://github.com/cka4913/kinqimen-mcp.git
-cd kinqimen-mcp
+git clone https://github.com/cka4913/qimen-mcp.git
+cd qimen-mcp
 pnpm install
 pnpm build     # → packages/mcp/dist/index.js
 pnpm test
@@ -321,7 +321,7 @@ Run the server:
 
 ```sh
 node packages/mcp/dist/index.js
-# kinqimen-mcp v0.1.0 listening on stdio
+# qimen-mcp v0.1.0 listening on stdio
 ```
 
 No environment variables required.
@@ -335,9 +335,9 @@ The server runs over stdio and can be configured for any MCP client that spawns 
 ```json
 {
   "mcpServers": {
-    "kinqimen": {
+    "qimen": {
       "command": "node",
-      "args": ["/absolute/path/to/kinqimen-mcp/packages/mcp/dist/index.js"]
+      "args": ["/absolute/path/to/qimen-mcp/packages/mcp/dist/index.js"]
     }
   }
 }
@@ -395,7 +395,7 @@ For `render_chart_text` output on the same moment and the complete field referen
 
 ## Testing and Trust
 
-- **226 tests, all passing**, exercising **69,146 sampled moments** compared field by field against upstream.
+- **230 tests, all passing**, exercising **69,146 sampled moments** compared field by field against upstream.
 - The golden corpus is produced by `scripts/gen-corpus.py` running a **pinned upstream commit** (`f4c6118665253f897889290d8630f9b4cb3a4404`); that revision is recorded in every corpus file, and regeneration refuses to run against a different upstream commit — so the baseline cannot silently drift.
 - Deliberate deviations from upstream are documented in [docs/PORTING-NOTES.md](docs/PORTING-NOTES.md), each pinned by its own test.
 
@@ -406,12 +406,12 @@ Sampling covers: uniform sampling across the full 1900–2100 span, dense ten-mi
 ## Known Limitations and Behaviors
 
 - **Supported range is 1900–2100**, the span of the solar-term table.
-- **Chart tools reject impossible civil dates** (e.g. 2024-02-30) instead of silently normalizing them. This validation applies to the MCP tools and the main chart-building functions; some lower-level `@kinqimen/core` calendar helpers (e.g. `currentJieqiStart`, `jieqiOnDay`) do not carry the same validation — check inputs yourself if calling them directly.
+- **Chart tools reject impossible civil dates** (e.g. 2024-02-30) instead of silently normalizing them. This validation applies to the MCP tools and the main chart-building functions; some lower-level `@cka4913/qimen-core` calendar helpers (e.g. `currentJieqiStart`, `jieqiOnDay`) do not carry the same validation — check inputs yourself if calling them directly.
 - **No timezone conversion, no daylight saving, no true-solar-time correction.** The engine charts exactly the wall-clock time you give it.
 - **23:00 belongs to the next day** (晚子時 convention); 22:59 and 23:01 produce different day pillars.
 - **The sky plate has eight palaces, not nine, when the Duty Star sits in the center palace** — `skyPlate` missing a `中` key is expected behavior (中寄坤), not a data gap.
 - **The center palace has no gate** — `doors` never carries a `中` key in the hour and minute charts.
-- **Memoized derivations and complete chart results are deep-frozen** to prevent a caller from mutating shared cached state; not every object exported by `@kinqimen/core` is immutable.
+- **Memoized derivations and complete chart results are deep-frozen** to prevent a caller from mutating shared cached state; not every object exported by `@cka4913/qimen-core` is immutable.
 - **`check_patterns` covers only the three patterns upstream implements**, not the full canon of Qi Men patterns. Others must be read by the caller from the plates, gates, stars and gods directly.
 - **Month and year pillars switch at the solar term's exact minute, not for the whole day** (a deliberate departure from upstream's day-granular convention). On a 節 day before the term's minute the month pillar still belongs to the previous month; on 立春 day before the 立春 minute the year pillar still belongs to the previous year. This keeps the month pillar consistent with the 節氣 field of the same chart; see [docs/PORTING-NOTES.md](docs/PORTING-NOTES.md) D9.
 
@@ -432,14 +432,14 @@ Sampling covers: uniform sampling across the full 1900–2100 span, dense ten-mi
 
 ## Contributing
 
-Issues and feature requests are welcome via [GitHub Issues](https://github.com/cka4913/kinqimen-mcp/issues). There is no formal `CONTRIBUTING.md` or issue template yet; open an issue to discuss direction before sending a pull request. When changing algorithm code, make sure `pnpm test` passes, and update [docs/PORTING-NOTES.md](docs/PORTING-NOTES.md) if the change introduces or resolves a divergence from upstream.
+Issues and feature requests are welcome via [GitHub Issues](https://github.com/cka4913/qimen-mcp/issues). There is no formal `CONTRIBUTING.md` or issue template yet; open an issue to discuss direction before sending a pull request. When changing algorithm code, make sure `pnpm test` passes, and update [docs/PORTING-NOTES.md](docs/PORTING-NOTES.md) if the change introduces or resolves a divergence from upstream.
 
 ---
 
 ## Important Notices
 
 - This is a calculation and research tool, **not medical, legal or financial advice**. Queries touching health, legal or financial matters are for reference only — consult a qualified professional.
-- The interpretation procedure in [`skills/kinqimen/SKILL.md`](skills/kinqimen/SKILL.md) **is an unreviewed draft**. Different schools of Qi Men Dun Jia disagree on 用神 selection and pattern reading; verify against your own tradition before relying on it.
+- The interpretation procedure in [`skills/qimen/SKILL.md`](skills/qimen/SKILL.md) **is an unreviewed draft**. Different schools of Qi Men Dun Jia disagree on 用神 selection and pattern reading; verify against your own tradition before relying on it.
 - The engine's parity with upstream and the skill document's doctrine are two separate claims: the former is verified field by field; the latter is not.
 
 ---

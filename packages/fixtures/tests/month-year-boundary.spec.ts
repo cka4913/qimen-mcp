@@ -10,7 +10,7 @@
  * fall in the 23:xx or 00:00 edge hours — that the switch lands on the minute.
  */
 import { describe, expect, it } from "vitest";
-import { addDays, jieqiMomentInYear, pillars, JIAZI } from "@kinqimen/core";
+import { addDays, jieqiMomentInYear, pillars, JIAZI } from "@cka4913/qimen-core";
 
 type Moment = { year: number; month: number; day: number; hour: number; minute: number };
 

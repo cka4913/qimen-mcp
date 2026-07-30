@@ -1,6 +1,6 @@
 # Tool contract · 工具契約
 
-> What each tool takes, what it returns, and what it refuses to do. For setup see [HERMES.md](HERMES.md); for how to *read* a chart see [SKILLS.md](SKILLS.md) and [`skills/kinqimen/SKILL.md`](../skills/kinqimen/SKILL.md).
+> What each tool takes, what it returns, and what it refuses to do. For setup see [HERMES.md](HERMES.md); for how to *read* a chart see [SKILLS.md](SKILLS.md) and [`skills/qimen/SKILL.md`](../skills/qimen/SKILL.md).
 
 ---
 
@@ -65,7 +65,7 @@ Neither is "correct". The engine will not choose for you and neither should an a
 
 **`resolved` echoes the inputs.** Every chart carries back the datetime and method it was built from, so a cached result is self-describing. The datetime it echoes is exactly the one you sent: chart tools reject an impossible civil date (e.g. 2024-02-30) rather than silently normalising it into some other day.
 
-**Memoized and assembled results are frozen.** The engine memoises its internal derivations and shares them between callers, so a mutation by one caller would otherwise poison another's chart. To close that off, every memoized function's output is deep-frozen, and so are the complete results of `get_qimen_chart`, `get_qimen_chart_minute`, `get_golden_mirror_chart` and `check_patterns`. Mutating one of these throws a `TypeError`; copy it first if you need to change it. This is not a blanket guarantee across every export of `@kinqimen/core` — a handful of small, non-memoized helpers (e.g. `closedSixwuForXun`, `lookupReference`) build a fresh object per call and return it unfrozen, which is safe precisely because nothing else shares that object. Over MCP none of this is visible either way — you receive JSON, not a live reference — so it only matters if you import `@kinqimen/core` directly.
+**Memoized and assembled results are frozen.** The engine memoises its internal derivations and shares them between callers, so a mutation by one caller would otherwise poison another's chart. To close that off, every memoized function's output is deep-frozen, and so are the complete results of `get_qimen_chart`, `get_qimen_chart_minute`, `get_golden_mirror_chart` and `check_patterns`. Mutating one of these throws a `TypeError`; copy it first if you need to change it. This is not a blanket guarantee across every export of `@cka4913/qimen-core` — a handful of small, non-memoized helpers (e.g. `closedSixwuForXun`, `lookupReference`) build a fresh object per call and return it unfrozen, which is safe precisely because nothing else shares that object. Over MCP none of this is visible either way — you receive JSON, not a live reference — so it only matters if you import `@cka4913/qimen-core` directly.
 
 ---
 

@@ -103,7 +103,7 @@ arithmetically from the hour and does the same 五鼠遁.
 
 **This port** returns `Record<string, string>` from `panSky`, always. The
 unreachable paths are marked in comments rather than reproduced, and the raise
-becomes a `KinqimenError` with a code. The whole-corpus parity suite is what
+becomes a `QimenError` with a code. The whole-corpus parity suite is what
 justifies the simplification: 4,112 charts × 2 schools agree field for field,
 and no case in the corpus reaches the raising path.
 

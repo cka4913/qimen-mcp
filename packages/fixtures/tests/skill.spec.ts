@@ -9,10 +9,10 @@ import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { buildChart, buildGoldenMirrorChart, buildKeChart, lookupReference, patterns } from "@kinqimen/core";
+import { buildChart, buildGoldenMirrorChart, buildKeChart, lookupReference, patterns } from "@cka4913/qimen-core";
 
 const SKILL = readFileSync(
-  join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "skills", "kinqimen", "SKILL.md"),
+  join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "skills", "qimen", "SKILL.md"),
   "utf8"
 );
 

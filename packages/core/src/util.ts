@@ -1,4 +1,4 @@
-import { KinqimenError } from "./errors.js";
+import { QimenError } from "./errors.js";
 
 /**
  * `config.new_list` — rotate `list` so that it starts at `item`.
@@ -10,7 +10,7 @@ import { KinqimenError } from "./errors.js";
  */
 export function rotate<T>(list: readonly T[], item: T): T[] {
   const i = list.indexOf(item);
-  if (i < 0) throw new KinqimenError("TABLE_LOOKUP_FAILED", `${String(item)} is not in list`, { list });
+  if (i < 0) throw new QimenError("TABLE_LOOKUP_FAILED", `${String(item)} is not in list`, { list });
   return [...list.slice(i), ...list.slice(0, i)];
 }
 
@@ -22,7 +22,7 @@ export function tryRotate<T>(list: readonly T[], item: T): T[] | null {
 /** `config.new_list_r` — rotate anticlockwise: start at `item` and walk backwards. */
 export function rotateReverse<T>(list: readonly T[], item: T): T[] {
   const start = list.indexOf(item);
-  if (start < 0) throw new KinqimenError("TABLE_LOOKUP_FAILED", `${String(item)} is not in list`, { list });
+  if (start < 0) throw new QimenError("TABLE_LOOKUP_FAILED", `${String(item)} is not in list`, { list });
   const n = list.length;
   const out: T[] = [];
   for (let i = 0; i < n; i++) {

@@ -11,7 +11,7 @@
  * An agent should branch on `code`, never on message text, and should be ready
  * for an error body that does not parse (that one is a schema violation).
  */
-import { KinqimenError } from "@kinqimen/core";
+import { QimenError } from "@cka4913/qimen-core";
 
 export type ToolResult = {
   content: Array<{ type: "text"; text: string }>;
@@ -35,7 +35,7 @@ export function ok(payload: unknown): ToolResult {
 
 /** Turn a thrown error into a tool result carrying a machine-readable code. */
 export function errorToToolResult(err: unknown): ToolResult {
-  if (err instanceof KinqimenError) {
+  if (err instanceof QimenError) {
     return {
       content: [
         {

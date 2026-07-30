@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { MAX_YEAR, MIN_YEAR, type CivilDateTime, type Method } from "@kinqimen/core";
+import { MAX_YEAR, MIN_YEAR, type CivilDateTime, type Method } from "@cka4913/qimen-core";
 
 /**
  * Every time-dependent tool takes this. It is a *civil* datetime: the wall

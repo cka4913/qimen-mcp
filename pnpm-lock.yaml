@@ -26,13 +26,13 @@ importers:
 
   packages/fixtures:
     dependencies:
-      '@kinqimen/core':
+      '@cka4913/qimen-core':
         specifier: workspace:*
         version: link:../core
 
   packages/mcp:
     dependencies:
-      '@kinqimen/core':
+      '@cka4913/qimen-core':
         specifier: workspace:*
         version: link:../core
       '@modelcontextprotocol/sdk':

@@ -5,7 +5,7 @@
  * of it, since that is the only place the 刻柱 can shift.
  */
 import { describe, expect, it } from "vitest";
-import { buildKeChart, type Method } from "@kinqimen/core";
+import { buildKeChart, type Method } from "@cka4913/qimen-core";
 import { label, loadMinute, toCivil, upstreamHourIsSound, type ChartCase } from "../src/index.js";
 
 const all = loadMinute();

@@ -1,11 +1,11 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-import { ENGINE_VERSION } from "@kinqimen/core";
+import { ENGINE_VERSION } from "@cka4913/qimen-core";
 import { registerGoldenMirror, registerJu, registerKeChart, registerQimenChart } from "./tools/charts.js";
 import { registerLookup, registerPatterns, registerRenderText, registerResolveTime, registerSixwu } from "./tools/misc.js";
 
 export function createServer(): McpServer {
-  const server = new McpServer({ name: "kinqimen-mcp", version: ENGINE_VERSION });
+  const server = new McpServer({ name: "qimen-mcp", version: ENGINE_VERSION });
 
   registerResolveTime(server);
   registerQimenChart(server);
@@ -24,5 +24,5 @@ export async function main(): Promise<void> {
   const server = createServer();
   const transport = new StdioServerTransport();
   await server.connect(transport);
-  console.error(`kinqimen-mcp v${ENGINE_VERSION} listening on stdio`);
+  console.error(`qimen-mcp v${ENGINE_VERSION} listening on stdio`);
 }

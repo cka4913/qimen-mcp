@@ -11,19 +11,19 @@
  * otherwise only show up as a mysterious runtime error much later.
  */
 import { describe, expect, it } from "vitest";
-import { ANGAN } from "@kinqimen/core/dist/data/angan.js";
+import { ANGAN } from "@cka4913/qimen-core/dist/data/angan.js";
 import {
   JIEQI_PACKED,
   JIEQI_TABLE_END_YEAR,
   JIEQI_TABLE_START_YEAR,
-} from "@kinqimen/core/dist/data/jieqi-table.js";
+} from "@cka4913/qimen-core/dist/data/jieqi-table.js";
 import {
   KE_KOOK_GROUPS,
   KE_SKY_OVERRIDES,
   KE_SKY_PLATE_INDEX,
   KE_SKY_PLATES,
-} from "@kinqimen/core/dist/data/ke-sky-plate.js";
-import { DI_ZHI, JIAZI, TIAN_GAN, daysInMonth, jieqiOnDay, MAX_YEAR, MIN_YEAR } from "@kinqimen/core";
+} from "@cka4913/qimen-core/dist/data/ke-sky-plate.js";
+import { DI_ZHI, JIAZI, TIAN_GAN, daysInMonth, jieqiOnDay, MAX_YEAR, MIN_YEAR } from "@cka4913/qimen-core";
 import { UPSTREAM_REVISION, loadStage, type StageName } from "../src/index.js";
 
 /** The six bureaux the 刻家 tables are keyed by. */

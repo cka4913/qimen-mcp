@@ -1,18 +1,18 @@
 {
-  "name": "@kinqimen/server",
+  "name": "@cka4913/qimen-mcp",
   "version": "0.1.0",
   "private": true,
   "type": "module",
   "main": "dist/index.js",
   "bin": {
-    "kinqimen-mcp": "dist/index.js"
+    "qimen-mcp": "dist/index.js"
   },
   "scripts": {
     "build": "tsc -b"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",
-    "@kinqimen/core": "workspace:*",
+    "@cka4913/qimen-core": "workspace:*",
     "zod": "^4.4.3"
   }
 }

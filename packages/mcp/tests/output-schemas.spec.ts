@@ -15,7 +15,7 @@ import {
   zhirunRaw,
   type CivilDateTime,
   type Method,
-} from "@kinqimen/core";
+} from "@cka4913/qimen-core";
 import {
   goldenMirrorChartSchema,
   keChartSchema,

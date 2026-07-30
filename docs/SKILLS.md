@@ -1,6 +1,6 @@
 # The skill · 解讀 skill
 
-> Why this repository ships a skill at all, what is in it, and how to change it. The skill itself is [`skills/kinqimen/SKILL.md`](../skills/kinqimen/SKILL.md).
+> Why this repository ships a skill at all, what is in it, and how to change it. The skill itself is [`skills/qimen/SKILL.md`](../skills/qimen/SKILL.md).
 
 ---
 

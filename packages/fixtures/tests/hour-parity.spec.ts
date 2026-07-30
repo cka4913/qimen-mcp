@@ -11,7 +11,7 @@
  * in two schools.
  */
 import { describe, expect, it } from "vitest";
-import { buildChart, type Method, type QimenChart } from "@kinqimen/core";
+import { buildChart, type Method, type QimenChart } from "@cka4913/qimen-core";
 import { label, loadHour, toCivil, upstreamHourIsSound, type ChartCase } from "../src/index.js";
 
 const all = loadHour();

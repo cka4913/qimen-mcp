@@ -1,8 +1,8 @@
-# 連接 kinqimen-mcp 至 client
+# 連接 qimen-mcp 至 client
 
 > 工具契約見 [AI-AGENT-INTEGRATION.md](AI-AGENT-INTEGRATION.md)；解讀流程見 [SKILLS.md](SKILLS.md)。
 
-本文件說明如何將 kinqimen-mcp 連接至任何支援 stdio transport 的 MCP client，包括 Claude Desktop、Claude Code、Hermes、Codex、OpenCode 等。
+本文件說明如何將 qimen-mcp 連接至任何支援 stdio transport 的 MCP client，包括 Claude Desktop、Claude Code、Hermes、Codex、OpenCode 等。
 
 ---
 
@@ -11,8 +11,8 @@
 本 server 以 stdio 方式運作：client 會將其當作 subprocess 啟動，因此必須先編譯至 `dist/`。
 
 ```sh
-git clone https://github.com/cka4913/kinqimen-mcp.git
-cd kinqimen-mcp
+git clone https://github.com/cka4913/qimen-mcp.git
+cd qimen-mcp
 pnpm install
 pnpm build          # 產生 packages/mcp/dist/index.js
 pnpm test           # 選用
@@ -24,7 +24,7 @@ pnpm test           # 選用
 
 ```sh
 node packages/mcp/dist/index.js
-# kinqimen-mcp v0.1.0 listening on stdio
+# qimen-mcp v0.1.0 listening on stdio
 # (按 Ctrl-C 結束)
 ```
 
@@ -41,9 +41,9 @@ node packages/mcp/dist/index.js
 ```json
 {
   "mcpServers": {
-    "kinqimen": {
+    "qimen": {
       "command": "node",
-      "args": ["/absolute/path/to/kinqimen-mcp/packages/mcp/dist/index.js"]
+      "args": ["/absolute/path/to/qimen-mcp/packages/mcp/dist/index.js"]
     }
   }
 }
@@ -54,7 +54,7 @@ node packages/mcp/dist/index.js
 ### Claude Code
 
 ```sh
-claude mcp add kinqimen -- node /absolute/path/to/kinqimen-mcp/packages/mcp/dist/index.js
+claude mcp add qimen -- node /absolute/path/to/qimen-mcp/packages/mcp/dist/index.js
 ```
 
 以 `claude mcp list` 確認已加入，並在 session 內以 `/mcp` 檢查連線狀態。
@@ -67,15 +67,15 @@ claude mcp add kinqimen -- node /absolute/path/to/kinqimen-mcp/packages/mcp/dist
 
 ## 3. 安裝解讀 skill
 
-Server 只回傳事實；將事實轉化為解讀的是 [`skills/kinqimen/SKILL.md`](../skills/kinqimen/SKILL.md)。請將其複製至你 client 讀取 skill 的位置：
+Server 只回傳事實；將事實轉化為解讀的是 [`skills/qimen/SKILL.md`](../skills/qimen/SKILL.md)。請將其複製至你 client 讀取 skill 的位置：
 
 ```sh
 # Claude Code，專案層級
 mkdir -p .claude/skills
-cp -r /path/to/kinqimen-mcp/skills/kinqimen .claude/skills/
+cp -r /path/to/qimen-mcp/skills/qimen .claude/skills/
 
 # Claude Code，使用者層級
-cp -r /path/to/kinqimen-mcp/skills/kinqimen ~/.claude/skills/
+cp -r /path/to/qimen-mcp/skills/qimen ~/.claude/skills/
 ```
 
 未安裝 skill 的情況下 tool 仍可正常運作，但 agent 需自行編造解讀程序——安裝 skill 正是為了避免這種情況。
@@ -117,11 +117,11 @@ Agent 應**先**呼叫 `resolve_time`，再將其結果傳入 `get_qimen_chart`�
 
 <br>
 
-# Connecting kinqimen-mcp to a client (English)
+# Connecting qimen-mcp to a client (English)
 
 > For the tool contract see [AI-AGENT-INTEGRATION.md](AI-AGENT-INTEGRATION.md); for interpretation see [SKILLS.md](SKILLS.md).
 
-This document covers connecting kinqimen-mcp to any MCP client that supports stdio transport, including Claude Desktop, Claude Code, Hermes, Codex, and OpenCode.
+This document covers connecting qimen-mcp to any MCP client that supports stdio transport, including Claude Desktop, Claude Code, Hermes, Codex, and OpenCode.
 
 ---
 
@@ -130,8 +130,8 @@ This document covers connecting kinqimen-mcp to any MCP client that supports std
 This is a stdio MCP server: the client launches it as a subprocess, so it must be built to `dist/` first.
 
 ```sh
-git clone https://github.com/cka4913/kinqimen-mcp.git
-cd kinqimen-mcp
+git clone https://github.com/cka4913/qimen-mcp.git
+cd qimen-mcp
 pnpm install
 pnpm build          # produces packages/mcp/dist/index.js
 pnpm test           # optional
@@ -143,7 +143,7 @@ Confirm the entry point starts. It logs to **stderr** and then waits on stdin �
 
 ```sh
 node packages/mcp/dist/index.js
-# kinqimen-mcp v0.1.0 listening on stdio
+# qimen-mcp v0.1.0 listening on stdio
 # (Ctrl-C to exit)
 ```
 
@@ -160,9 +160,9 @@ Use an **absolute path** to `packages/mcp/dist/index.js`. Clients do not resolve
 ```json
 {
   "mcpServers": {
-    "kinqimen": {
+    "qimen": {
       "command": "node",
-      "args": ["/absolute/path/to/kinqimen-mcp/packages/mcp/dist/index.js"]
+      "args": ["/absolute/path/to/qimen-mcp/packages/mcp/dist/index.js"]
     }
   }
 }
@@ -173,7 +173,7 @@ Restart Claude Desktop after editing. The nine tools appear under the tools menu
 ### Claude Code
 
 ```sh
-claude mcp add kinqimen -- node /absolute/path/to/kinqimen-mcp/packages/mcp/dist/index.js
+claude mcp add qimen -- node /absolute/path/to/qimen-mcp/packages/mcp/dist/index.js
 ```
 
 Check with `claude mcp list`, then `/mcp` inside a session.
@@ -186,15 +186,15 @@ Same two fields everywhere: `command: "node"` and one argument, the absolute pat
 
 ## 3. Installing the skill
 
-The server returns facts; [`skills/kinqimen/SKILL.md`](../skills/kinqimen/SKILL.md) is what turns them into a reading. Copy it where your client looks for skills:
+The server returns facts; [`skills/qimen/SKILL.md`](../skills/qimen/SKILL.md) is what turns them into a reading. Copy it where your client looks for skills:
 
 ```sh
 # Claude Code, project-scoped
 mkdir -p .claude/skills
-cp -r /path/to/kinqimen-mcp/skills/kinqimen .claude/skills/
+cp -r /path/to/qimen-mcp/skills/qimen .claude/skills/
 
 # Claude Code, user-scoped
-cp -r /path/to/kinqimen-mcp/skills/kinqimen ~/.claude/skills/
+cp -r /path/to/qimen-mcp/skills/qimen ~/.claude/skills/
 ```
 
 Without it the tools still work, but the agent has to invent its own reading procedure — which is exactly what the skill exists to prevent.

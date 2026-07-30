@@ -6,7 +6,7 @@
  * a verdict — the plates are facts, the reading is the agent's.
  */
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { buildChart, buildGoldenMirrorChart, buildKeChart, juChaibu, juKe, juZhirun, pillars, zhirunRaw } from "@kinqimen/core";
+import { buildChart, buildGoldenMirrorChart, buildKeChart, juChaibu, juKe, juZhirun, pillars, zhirunRaw } from "@cka4913/qimen-core";
 import { chartShape, datetimeShape, toCivilDateTime } from "../schemas.js";
 import { safe } from "../errors.js";
 import { goldenMirrorChartSchema, juResultSchema, keChartSchema, qimenChartSchema, shapeOf } from "../output-schemas.js";

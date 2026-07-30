@@ -6,7 +6,7 @@
  * and raises a protocol error if it does not match. (`isError` results are
  * exempt, so business failures pass through untouched.)
  *
- * That makes drift from `@kinqimen/core`'s types a real failure mode rather than
+ * That makes drift from `@cka4913/qimen-core`'s types a real failure mode rather than
  * a documentation nit, so it is guarded twice over:
  *
  *  - **Compile time** — `types-check.ts` asserts each schema's inferred type is

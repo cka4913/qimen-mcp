@@ -19,6 +19,7 @@ const PKG = JSON.parse(readFileSync(fileURLToPath(new URL("../package.json", imp
 let child: ChildProcessWithoutNullStreams;
 let lines: Interface;
 let stderr = "";
+let serverInfo: any;
 const inbox: any[] = [];
 let nextId = 1;
 
@@ -53,6 +54,8 @@ beforeAll(async () => {
     protocolVersion: "2024-11-05",
     capabilities: {},
     clientInfo: { name: "stdio-smoke", version: "0" },
+  }).then((init) => {
+    serverInfo = init.result.serverInfo;
   });
   child.stdin.write(`${JSON.stringify({ jsonrpc: "2.0", method: "notifications/initialized" })}\n`);
 }, 20_000);
@@ -64,15 +67,19 @@ afterAll(() => {
 
 describe("compiled entry point", () => {
   it("is declared as the package bin and carries a shebang", () => {
-    expect(PKG.bin).toHaveProperty("kinqimen-mcp");
+    expect(PKG.bin).toHaveProperty("qimen-mcp");
     expect(readFileSync(ENTRY, "utf8").startsWith("#!/usr/bin/env node")).toBe(true);
   });
 
   it("announces itself on stderr, never on stdout", () => {
     // stdout is the JSON-RPC channel; one stray console.log corrupts the stream.
-    expect(stderr).toContain("kinqimen-mcp");
+    expect(stderr).toContain("qimen-mcp");
     expect(stderr).toContain("listening on stdio");
     for (const message of inbox) expect(message.jsonrpc).toBe("2.0");
+  });
+
+  it("reports serverInfo.name as qimen-mcp on initialize", () => {
+    expect(serverInfo?.name).toBe("qimen-mcp");
   });
 });
 

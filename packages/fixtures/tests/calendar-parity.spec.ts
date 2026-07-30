@@ -8,7 +8,7 @@
  * minute can move a chart into a different 局.
  */
 import { describe, expect, it } from "vitest";
-import { currentJieqiStart, jieqiName, lunarDate, pillars } from "@kinqimen/core";
+import { currentJieqiStart, jieqiName, lunarDate, pillars } from "@cka4913/qimen-core";
 import { label, loadCalendar, toCivil, upstreamHourIsSound } from "../src/index.js";
 
 const all = loadCalendar();

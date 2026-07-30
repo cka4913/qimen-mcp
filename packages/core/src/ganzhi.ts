@@ -18,7 +18,7 @@ import { Solar } from "lunar-javascript";
 import { DI_ZHI, JIAZI, TIAN_GAN } from "./constants.js";
 import { addDays, assertSupported, beforeJieqiStart, compare, currentJieqiStart, dtKey, jieqiMomentInYear, nextJieqiStart, type CivilDateTime } from "./calendar.js";
 import { memoize, multiKeyGet, rotate, splitList, zipRecord } from "./util.js";
-import { KinqimenError, must } from "./errors.js";
+import { QimenError, must } from "./errors.js";
 
 export interface Pillars {
   /** 年柱 */
@@ -214,7 +214,7 @@ export function xunHead(pillar: string): string {
   for (const head of heads) {
     if (rotate(JIAZI, head).slice(0, 10).includes(pillar)) return head;
   }
-  throw new KinqimenError("TABLE_LOOKUP_FAILED", "xun head not found", { pillar });
+  throw new QimenError("TABLE_LOOKUP_FAILED", "xun head not found", { pillar });
 }
 
 /** `config.findyuen_dict` — pillar → 上/中/下 元, in blocks of five. */
@@ -224,5 +224,5 @@ export function sanyuanOf(pillar: string): string {
   for (let i = 0; i < blocks.length; i++) {
     if ((blocks[i] as string[]).includes(pillar)) return labels[i] as string;
   }
-  throw new KinqimenError("TABLE_LOOKUP_FAILED", "sanyuan not found", { pillar });
+  throw new QimenError("TABLE_LOOKUP_FAILED", "sanyuan not found", { pillar });
 }

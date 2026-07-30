@@ -14,7 +14,7 @@
  * See `ganzhi.ts`.
  */
 import { Solar } from "lunar-javascript";
-import { KinqimenError } from "./errors.js";
+import { QimenError } from "./errors.js";
 import { JIEQI_SXTWL_ORDER, LUNAR_MONTH_NAMES } from "./constants.js";
 import { JIEQI_PACKED, JIEQI_TABLE_END_YEAR, JIEQI_TABLE_START_YEAR } from "./data/jieqi-table.js";
 import { memoize } from "./util.js";
@@ -72,13 +72,13 @@ export function assertSupported(dt: CivilDateTime): void {
     !Number.isInteger(dt.hour) ||
     !Number.isInteger(dt.minute)
   ) {
-    throw new KinqimenError("DATETIME_INVALID", "every field of a datetime must be an integer", { ...dt });
+    throw new QimenError("DATETIME_INVALID", "every field of a datetime must be an integer", { ...dt });
   }
   if (dt.month < 1 || dt.month > 12) {
-    throw new KinqimenError("DATETIME_INVALID", "month must be 1–12", { ...dt });
+    throw new QimenError("DATETIME_INVALID", "month must be 1–12", { ...dt });
   }
   if (dt.hour < 0 || dt.hour > 23 || dt.minute < 0 || dt.minute > 59) {
-    throw new KinqimenError("DATETIME_INVALID", "hour must be 0–23 and minute 0–59", { ...dt });
+    throw new QimenError("DATETIME_INVALID", "hour must be 0–23 and minute 0–59", { ...dt });
   }
   // A date that does not exist must be rejected, not normalised. `Date` would
   // silently roll 2024-02-30 forward to 2024-03-01, and the chart would then be
@@ -86,14 +86,14 @@ export function assertSupported(dt: CivilDateTime): void {
   // impossible one — which quietly breaks reproducibility and auditability.
   const last = daysInMonth(dt.year, dt.month);
   if (dt.day < 1 || dt.day > last) {
-    throw new KinqimenError(
+    throw new QimenError(
       "DATETIME_INVALID",
       `${dt.year}-${dt.month} has ${last} days, so day ${dt.day} does not exist`,
       { ...dt }
     );
   }
   if (dt.year < MIN_YEAR || dt.year > MAX_YEAR) {
-    throw new KinqimenError(
+    throw new QimenError(
       "DATETIME_OUT_OF_RANGE",
       `year ${dt.year} is outside the supported range ${MIN_YEAR}–${MAX_YEAR}`,
       { ...dt }
@@ -131,7 +131,7 @@ export function addDays(date: { year: number; month: number; day: number }, days
 export function jieqiOnDay(year: number, month: number, day: number): JieqiMoment | null {
   const packed = JIEQI_PACKED[year - JIEQI_TABLE_START_YEAR];
   if (packed === undefined) {
-    throw new KinqimenError(
+    throw new QimenError(
       "DATETIME_OUT_OF_RANGE",
       `year ${year} is outside the solar-term table (${JIEQI_TABLE_START_YEAR}–${JIEQI_TABLE_END_YEAR})`,
       { year, month, day }
@@ -164,7 +164,7 @@ export function jieqiOnDay(year: number, month: number, day: number): JieqiMomen
 export function jieqiMomentInYear(year: number, name: string): JieqiMoment {
   const packed = JIEQI_PACKED[year - JIEQI_TABLE_START_YEAR];
   if (packed === undefined) {
-    throw new KinqimenError(
+    throw new QimenError(
       "DATETIME_OUT_OF_RANGE",
       `year ${year} is outside the solar-term table (${JIEQI_TABLE_START_YEAR}–${JIEQI_TABLE_END_YEAR})`,
       { year }
@@ -172,7 +172,7 @@ export function jieqiMomentInYear(year: number, name: string): JieqiMoment {
   }
   const idx = JIEQI_SXTWL_ORDER.indexOf(name);
   if (idx < 0) {
-    throw new KinqimenError("TABLE_LOOKUP_FAILED", `${name} is not a solar term`, { name });
+    throw new QimenError("TABLE_LOOKUP_FAILED", `${name} is not a solar term`, { name });
   }
   const at = idx * 8;
   return {
@@ -196,7 +196,7 @@ function currentJieqiStartUncached(dt: CivilDateTime): JieqiMoment {
     if (found) return found;
     cursor = addDays(cursor, -1);
   }
-  throw new KinqimenError("JIEQI_NOT_FOUND", "no solar term found within 40 days back", { ...dt });
+  throw new QimenError("JIEQI_NOT_FOUND", "no solar term found within 40 days back", { ...dt });
 }
 
 /** `jieqi.get_next_jieqi_start_date` — search forward starting the day after. */
@@ -207,7 +207,7 @@ function nextJieqiStartUncached(dt: CivilDateTime): JieqiMoment {
     if (found) return found;
     cursor = addDays(cursor, 1);
   }
-  throw new KinqimenError("JIEQI_NOT_FOUND", "no solar term found within 40 days forward", { ...dt });
+  throw new QimenError("JIEQI_NOT_FOUND", "no solar term found within 40 days forward", { ...dt });
 }
 
 /**
@@ -222,7 +222,7 @@ function beforeJieqiStartUncached(dt: CivilDateTime): JieqiMoment {
     if (found) return found;
     cursor = addDays(cursor, -1);
   }
-  throw new KinqimenError("JIEQI_NOT_FOUND", "no solar term found within 40 days back", { ...dt });
+  throw new QimenError("JIEQI_NOT_FOUND", "no solar term found within 40 days back", { ...dt });
 }
 
 /**
@@ -238,7 +238,7 @@ function jieqiNameUncached(dt: CivilDateTime): string {
   const next = nextJieqiStart(dt);
   if (compare(start, dt) <= 0 && compare(dt, next) < 0) return start.name;
   if (compare(dt, start) < 0) return beforeJieqiStart(dt).name;
-  throw new KinqimenError("JIEQI_NOT_FOUND", "moment is not inside any solar-term period", { ...dt });
+  throw new QimenError("JIEQI_NOT_FOUND", "moment is not inside any solar-term period", { ...dt });
 }
 
 /** `jieqi.lunar_date_d` */

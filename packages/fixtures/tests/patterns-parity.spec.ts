@@ -6,7 +6,7 @@
  * a branch and return `None`; both mean "did not form" and map to `null` here.
  */
 import { describe, expect, it } from "vitest";
-import { patterns, type Method } from "@kinqimen/core";
+import { patterns, type Method } from "@cka4913/qimen-core";
 import { label, loadPatterns, toCivil, upstreamHourIsSound } from "../src/index.js";
 
 const all = loadPatterns();
