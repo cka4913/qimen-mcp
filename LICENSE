@@ -2,11 +2,6 @@ MIT License
 
 Copyright (c) 2026 cka4913
 
-Portions of this software are derived from kinqimen
-(https://github.com/kentang2017/kinqimen), Copyright (c) kentang2017,
-also released under the MIT License. The calculation logic was ported from
-Python to TypeScript; see docs/PORTING-NOTES.md for what changed and why.
-
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights

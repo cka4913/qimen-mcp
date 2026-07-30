@@ -218,7 +218,7 @@ Claude Desktop、Claude Code 等個別 client 的詳細設定步驟、skill 安�
 
 ## License 與 Attribution
 
-本專案以 [MIT License](LICENSE) 授權，與上游 [kentang2017/kinqimen](https://github.com/kentang2017/kinqimen)（同為 MIT）保持一致。移植過程之細節見 [docs/PORTING-NOTES.md](docs/PORTING-NOTES.md)。
+本專案以 [MIT License](LICENSE) 授權。上游 [kentang2017/kinqimen](https://github.com/kentang2017/kinqimen) 的 README 聲明採用 MIT License，但其 repository 未包含完整的 `LICENSE` 文件；詳情與來源標示見 [NOTICE.md](NOTICE.md)。移植過程之細節見 [docs/PORTING-NOTES.md](docs/PORTING-NOTES.md)。
 
 <br>
 
@@ -446,4 +446,4 @@ Issues and feature requests are welcome via [GitHub Issues](https://github.com/c
 
 ## License and Attribution
 
-This project is licensed under the [MIT License](LICENSE), matching upstream [kentang2017/kinqimen](https://github.com/kentang2017/kinqimen) (also MIT). Porting details are in [docs/PORTING-NOTES.md](docs/PORTING-NOTES.md).
+This project is licensed under the [MIT License](LICENSE). The README of upstream [kentang2017/kinqimen](https://github.com/kentang2017/kinqimen) states that it is MIT-licensed, but that repository does not contain the complete `LICENSE` text; see [NOTICE.md](NOTICE.md) for attribution and details. Porting details are in [docs/PORTING-NOTES.md](docs/PORTING-NOTES.md).
