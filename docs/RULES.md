@@ -86,8 +86,9 @@ Simplest of the three: 陽遁 for a 子–巳 hour branch, 陰遁 for 午–亥;
 **Rotation order** differs by 遁 and by chart:
 
 - 時家 陽遁 — `坎艮震巽離坤兌乾` (clockwise)
-- 時家 陰遁 — `艮乾兌坤離巽震坎` (a separate order fitted to published 置閏 charts, *not* the reverse of clockwise)
-- 刻家 陰遁 — the plain reverse of clockwise
+- 陰遁 (both 時家 and 刻家) — `乾兌坤離巽震艮坎`, the plain reverse of clockwise
+
+Upstream used a different, asymmetric order for 時家 陰遁; this port does not. See [PORTING-NOTES.md](PORTING-NOTES.md) D10.
 
 ---
 

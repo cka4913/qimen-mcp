@@ -9,7 +9,18 @@
  * Prose for each entry is in docs/PORTING-NOTES.md.
  */
 import { describe, expect, it } from "vitest";
-import { addDays, compare, hourBranch, jieqiMomentInYear, jieqiName, pillars, JIAZI } from "@cka4913/qimen-core";
+import {
+  JIAZI,
+  UPSTREAM_YIN_EIGHTGUA_ORDER,
+  addDays,
+  buildChart,
+  compare,
+  hourBranch,
+  jieqiMomentInYear,
+  jieqiName,
+  pillars,
+  rotationOrder,
+} from "@cka4913/qimen-core";
 import {
   EPHEM_PRECISION_BREAKDOWN,
   label,
@@ -178,5 +189,99 @@ describe("D9 · month and year pillars switch at the exact term minute, not at 0
     expect(edgeCount).toBe(103); // 101 in 23:xx + 2 at 00:00 across 1900–2100
     expect(bad.slice(0, 10)).toEqual([]);
     expect(bad).toHaveLength(0);
+  });
+});
+
+
+/**
+ * D10 · 陰遁 walks the plain reverse of clockwise, not upstream's order.
+ *
+ * Upstream uses `艮乾兌坤離巽震坎` — the plain reverse with 艮 lifted from
+ * seventh place to first — which this port copied until it could be checked
+ * against something other than upstream itself. It cannot be checked against
+ * the corpus, because the corpus *is* upstream.
+ *
+ * So it was checked against a third implementation (奇門實用版 v7.88). The two
+ * charts below are transcribed from it; the plain reverse reproduces them
+ * exactly, and upstream's order does not. The transcription and the wider
+ * experiment are in test-case/FINDINGS.md.
+ *
+ * Consequence: on 陰遁 charts this port disagrees with upstream on the sky
+ * plate, gates, stars and gods, which is why hour-parity and patterns-parity
+ * exclude those. 陽遁 is untouched — measured over the corpus, 4,415 陽遁
+ * charts differ in nothing at all, while all 3,809 陰遁 charts differ.
+ */
+describe("D10 · the 陰遁 rotation order", () => {
+  /** 2026-08-03, 陰遁七局拆補, transcribed from the reference implementation. */
+  const REFERENCE: Array<{
+    label: string;
+    dt: { year: number; month: number; day: number; hour: number; minute: number };
+    sky: Record<string, string>;
+    doors: Record<string, string>;
+    gods: Record<string, string>;
+  }> = [
+    {
+      label: "2026-08-03 寅時",
+      dt: { year: 2026, month: 8, day: 3, hour: 3, minute: 0 },
+      sky: { 巽: "癸", 離: "戊", 坤: "己", 震: "丙", 兌: "丁", 艮: "辛", 坎: "壬", 乾: "乙" },
+      doors: { 巽: "景", 離: "死", 坤: "驚", 震: "杜", 兌: "開", 艮: "傷", 坎: "生", 乾: "休" },
+      gods: { 巽: "蛇", 離: "符", 坤: "天", 震: "陰", 兌: "地", 艮: "合", 坎: "虎", 乾: "玄" },
+    },
+    {
+      label: "2026-08-03 未時",
+      dt: { year: 2026, month: 8, day: 3, hour: 14, minute: 25 },
+      sky: { 巽: "戊", 離: "己", 坤: "丁", 震: "癸", 兌: "乙", 艮: "丙", 坎: "辛", 乾: "壬" },
+      doors: { 巽: "死", 離: "驚", 坤: "開", 震: "景", 兌: "休", 艮: "杜", 坎: "傷", 乾: "生" },
+      gods: { 巽: "符", 離: "天", 坤: "地", 震: "蛇", 兌: "玄", 艮: "陰", 坎: "合", 乾: "虎" },
+    },
+  ];
+
+  it("is the plain reverse of clockwise, and differs from upstream's only in where 艮 sits", () => {
+    expect(rotationOrder("陰").join("")).toBe("乾兌坤離巽震艮坎");
+    expect(UPSTREAM_YIN_EIGHTGUA_ORDER.join("")).toBe("艮乾兌坤離巽震坎");
+    // Same cycle, 艮 moved from the seventh position to the first.
+    const withoutGen = (o: string[]) => o.filter((g) => g !== "艮").join("");
+    expect(withoutGen(rotationOrder("陰"))).toBe(withoutGen([...UPSTREAM_YIN_EIGHTGUA_ORDER]));
+  });
+
+  it("reproduces the reference implementation on every transcribed 陰遁 chart", () => {
+    const failures: string[] = [];
+    for (const ref of REFERENCE) {
+      const chart = buildChart(ref.dt, "chaibu");
+      expect(chart.ju, ref.label).toBe("陰遁七局上");
+      for (const [layer, mine, want] of [
+        ["天盤", chart.skyPlate, ref.sky],
+        ["門", chart.doors, ref.doors],
+        ["神", chart.gods, ref.gods],
+      ] as const) {
+        for (const [gong, expected] of Object.entries(want)) {
+          if (mine[gong] !== expected) {
+            failures.push(`${ref.label} ${layer} ${gong}: got ${mine[gong]}, want ${expected}`);
+          }
+        }
+      }
+    }
+    expect(failures).toEqual([]);
+  });
+
+  it("upstream's order would fail those same charts, so the test has teeth", () => {
+    // Rebuild the sky plate the way upstream orders the palaces and confirm it
+    // disagrees — otherwise the assertion above would pass either way.
+    const ref = REFERENCE[0]!;
+    const chart = buildChart(ref.dt, "chaibu");
+    const upstreamOrder = [...UPSTREAM_YIN_EIGHTGUA_ORDER];
+    const ours = rotationOrder("陰");
+    // 艮 and 坎 are the palaces the displacement lands on.
+    expect(upstreamOrder.indexOf("艮")).not.toBe(ours.indexOf("艮"));
+    expect(chart.doors["艮"]).not.toBe(chart.doors["坎"]);
+  });
+
+  it("leaves 陽遁 untouched — the corpus still compares those in full", () => {
+    // 2027-03-15 11:00 is the 陽遁 chart the reference implementation matched
+    // field for field before this change; it must still match after it.
+    const chart = buildChart({ year: 2027, month: 3, day: 15, hour: 11, minute: 0 }, "chaibu");
+    expect(chart.ju).toBe("陽遁四局下");
+    expect(chart.skyPlate).toMatchObject({ 巽: "癸", 離: "丙", 坤: "辛", 震: "戊", 兌: "庚", 艮: "乙", 坎: "壬", 乾: "丁" });
+    expect(chart.doors).toMatchObject({ 巽: "景", 離: "死", 坤: "驚", 震: "杜", 兌: "開", 艮: "傷", 坎: "生", 乾: "休" });
   });
 });

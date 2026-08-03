@@ -65,6 +65,15 @@ Design consequences: conditions AND within one palace; 格局 is a palace-level 
 
 Incidental cross-check: the search independently reproduced the reference app's `2026-08-08 寅時 兌宮 青龍返首＋生門` hit, on a 陰遁 day where the two engines otherwise diverge.
 
+### P13 — 陰遁 rotation order (D10) ✅
+Upstream walks 時家 陰遁 in `艮乾兌坤離巽震坎` — the plain reverse of clockwise with 艮 moved from seventh place to first — while giving 陽遁 the ordinary clockwise walk and 刻家 陰遁 the ordinary reverse. Only that one case is asymmetric, and nothing explains it. This port copied it, and a previous revision of PORTING-NOTES recorded it as a school difference not to be touched.
+
+That was wrong, and wrong for a reason worth naming: **the corpus cannot test it.** The corpus is upstream's own output, so "is upstream right here" is a question it structurally cannot answer. It took charts from a third implementation to see it.
+
+The evidence is clean because 陽遁 was verified first: the two engines agree there field for field, nine palaces by five layers, which isolates any 陰遁 disagreement to the rotation itself rather than to the calendar, bureau or 值符. Substituting the plain reverse removes every 陰遁 disagreement on the transcribed charts; upstream's order does not.
+
+Measured over the corpus: 4,415 陽遁 charts differ in nothing, all 3,809 陰遁 charts differ in sky plate, gates, stars and gods, and the earth plate never differs. The parity suites now skip those four layers on 陰遁 and compare everything else as before; `deviations.spec.ts` D10 carries two reference charts as fixtures and asserts upstream's order would fail them.
+
 ---
 
 ## Not doing
@@ -82,5 +91,7 @@ Nothing here is committed; listed so the shape of the gap is visible.
 - **旺相休囚死 per palace.** `lookup_reference` exposes the seasonal table; computing it per palace and folding it into the chart would save the agent a step.
 - **「任一條件滿足」search mode.** The reference app offers per-palace OR alongside per-palace AND, and `find_chart_times` currently implements only AND. Low value on its own, but cheap once someone wants it.
 - **A 用神 helper.** Risky: choosing the 用神 is interpretation, and the engine's line is that interpretation belongs to the agent. If it happens it should return *candidates with their rationale*, never a single answer.
+- **#54 中宮寄干 and #56 十二長生.** Both confirmed as real defects with verified target behaviour (see `test-case/FINDINGS.md`), both pending: #54 needs a `skyPlate` data-model change that reaches the MCP output schema, and #56 needs the `stages` field's *shape* decided, since a corner palace has no single stage.
+- **#62 置閏.** Confirmed to diverge at 距節氣 7 days; deferred until the correct 超神／接氣 threshold is established.
 - **Doctrine review of `SKILL.md`.** The 用神 and 格局 tables are assembled from common doctrine and marked as a draft. They need reconciling against a specific transmission before anyone leans on them.
 - **Extending the corpus past 2100.** The solar-term table stops at 2102 and the query range at 2100. Widening both is mechanical.

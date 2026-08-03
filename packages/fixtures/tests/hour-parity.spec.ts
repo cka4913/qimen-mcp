@@ -20,8 +20,18 @@ const METHODS: Method[] = ["chaibu", "zhirun"];
 
 type Upstream = Record<string, any>;
 
+/**
+ * Layers that the 陰遁 rotation order feeds. Upstream walks 陰遁 in a
+ * non-standard order (see PORTING-NOTES D10), so on 陰遁 charts its output for
+ * these is not a target — deviations.spec.ts D10 checks them against a
+ * reference implementation instead. Everything else, the whole earth plate
+ * included, is still compared on every chart.
+ */
+const ROTATION_DEPENDENT = new Set(["天盤", "門", "星", "神"]);
+
 /** Every field of one chart, compared against one upstream dict. */
 function diffChart(chart: QimenChart, want: Upstream): string[] {
+  const isYin = String(want["排局"]).startsWith("陰");
   const out: string[] = [];
   const say = (field: string, got: unknown, expected: unknown) =>
     out.push(`${field}: got ${JSON.stringify(got)}, want ${JSON.stringify(expected)}`);
@@ -67,6 +77,7 @@ function diffChart(chart: QimenChart, want: Upstream): string[] {
     ["神", chart.gods],
   ];
   for (const [key, mine] of plates) {
+    if (isYin && ROTATION_DEPENDENT.has(key)) continue;
     const expected = want[key] as Record<string, string>;
     for (const gong of new Set([...Object.keys(mine), ...Object.keys(expected)])) {
       if (mine[gong] !== expected[gong]) {
@@ -81,6 +92,8 @@ function diffChart(chart: QimenChart, want: Upstream): string[] {
     ["天盤", chart.stages.sky],
     ["地盤", chart.stages.earth],
   ] as const) {
+    // The sky half reads the sky plate, so it inherits D10 on 陰遁 charts.
+    if (isYin && key === "天盤") continue;
     const expected = stages[key] as Record<string, Record<string, string>>;
     for (const gong of Object.keys(expected)) {
       const entry = expected[gong] as Record<string, string>;

@@ -11,7 +11,7 @@
  * holds it to upstream's output over the whole corpus, so the simplification is
  * verified rather than assumed.
  */
-import { CLOCKWISE_EIGHTGUA, CNUMBER, EARTH_STEM_ORDER, EIGHT_GUA, YIN_EIGHTGUA_ORDER } from "./constants.js";
+import { CLOCKWISE_EIGHTGUA, CNUMBER, EARTH_STEM_ORDER, EIGHT_GUA } from "./constants.js";
 import { dtKey, type CivilDateTime } from "./calendar.js";
 import { pillars } from "./ganzhi.js";
 import { invertRecord, memoize, rotate, tryRotate, zipRecord } from "./util.js";
@@ -19,11 +19,18 @@ import { must } from "./errors.js";
 import { juHead, juLabel, zhifuNZhishi, type Method } from "./zhifu.js";
 import { panGod } from "./stars-doors-gods.js";
 
-/** Palace-number order the plates are walked in, per 遁. */
+/**
+ * Palace order the plates are walked in, per 遁: 陽遁 clockwise, 陰遁 the plain
+ * reverse of it.
+ *
+ * Upstream instead uses `艮乾兌坤離巽震坎`, which is this reverse with 艮 moved
+ * from seventh place to first, breaking the symmetry between the two 遁 for no
+ * stated reason. Substituting the plain reverse reproduces a reference
+ * implementation exactly on the 陰遁 charts we have; upstream's does not. See
+ * docs/PORTING-NOTES.md D10.
+ */
 export function rotationOrder(dun: string): string[] {
-  // 陽遁 walks the eight outer palaces clockwise. 陰遁 does *not* simply reverse
-  // that: upstream uses a separate order fitted to published 置閏 charts.
-  return dun === "陰" ? [...YIN_EIGHTGUA_ORDER] : [...CLOCKWISE_EIGHTGUA];
+  return dun === "陰" ? [...CLOCKWISE_EIGHTGUA].reverse() : [...CLOCKWISE_EIGHTGUA];
 }
 
 /** `Qimen.pan_earth` — trigram → stem, all nine palaces. */

@@ -229,6 +229,48 @@ because upstream's own day-granular month pillar sometimes contradicts its own
 
 ---
 
+## D10 · 陰遁 walks the plain reverse of clockwise
+
+**Upstream** walks the eight outer palaces in `艮乾兌坤離巽震坎` for 時家 陰遁 —
+the plain reverse of the clockwise order, but with 艮 lifted from seventh place
+to first. 陽遁 gets the ordinary clockwise walk, and 刻家 陰遁 gets the ordinary
+reverse, so only this one case is asymmetric, and nothing in the source explains
+why.
+
+This port copied it, and an earlier revision of this document recorded it as a
+school difference not to be touched. That was the wrong call, and it was wrong
+for a structural reason: **the corpus cannot test it.** The corpus *is* upstream's
+output, so any question of the form "is upstream right here" is invisible to it.
+
+**This port** uses the plain reverse, `乾兌坤離巽震艮坎`.
+
+**Evidence.** Charts were taken from a third implementation (奇門實用版 v7.88)
+and compared field by field. On 陽遁 the two engines already agreed exactly, nine
+palaces by five layers, which isolates any 陰遁 disagreement to the rotation
+rather than to the calendar, the bureau, or the 值符. On 陰遁 they disagreed —
+and substituting the plain reverse removes the disagreement completely on every
+陰遁 chart transcribed, while upstream's order does not. Two of those charts are
+carried in `deviations.spec.ts` D10 as fixtures. The full experiment, including
+the refuted 中宮寄艮 hypothesis it replaced, is in `test-case/FINDINGS.md`.
+
+**Consequence.** Measured over the hour corpus: **4,415 陽遁 charts differ in
+nothing**, and **all 3,809 陰遁 charts differ** — in the sky plate, gates, stars
+and gods. The earth plate never differs, because it does not use this order.
+
+`hour-parity.spec.ts` therefore skips those four layers on 陰遁 charts (and the
+sky half of 長生運, which reads the sky plate), and `patterns-parity.spec.ts`
+skips 陰遁 charts entirely, since 格局 are read off the sky plate. Everything
+else — pillars, 排局, 節氣, the earth plate, 值符值使, 旬空, 馬星, and the earth
+half of 長生運 — is still compared against upstream on every chart in the corpus,
+陰遁 included.
+
+**Not yet settled.** `禽`/`芮`/`任` co-location still differs: the reference
+implementation shows 天禽 sharing a cell with another star, which this port
+cannot represent. That belongs to the 中宮寄干 question (upstream issue #54),
+not to this one.
+
+---
+
 ## Not ported at all
 
 - `app.py` — the Streamlit UI, the SVG chart export, the LLM report generator.

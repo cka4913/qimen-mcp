@@ -9,8 +9,8 @@
  *
  * Two differences from 時家 are easy to miss and are load-bearing:
  *
- *  - 陰遁 walks the *reverse* of the clockwise order here, not the separate
- *    `YIN_EIGHTGUA_ORDER` the hour chart uses under 置閏.
+ *  - 陰遁 walks the plain reverse of the clockwise order — which the hour chart
+ *    now does too, though upstream had them differ. See PORTING-NOTES D10.
  *  - 天乙 and the three 馬星 are still taken from the *hour* chart; the 刻 chart
  *    does not recompute them.
  */

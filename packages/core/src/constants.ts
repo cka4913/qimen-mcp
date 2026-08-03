@@ -25,10 +25,15 @@ export const EIGHT_GUA = [..."坎坤震巽中乾兌艮離"];
 /** The eight outer palaces walked clockwise. */
 export const CLOCKWISE_EIGHTGUA = [..."坎艮震巽離坤兌乾"];
 /**
- * Traversal order upstream uses for 陰遁 under 置閏. It is not the reverse of
- * `CLOCKWISE_EIGHTGUA`; it was fitted to published charts. Kept as-is.
+ * The 陰遁 traversal order upstream uses. **Not used by this engine** — kept
+ * only so the deviation test can show what it was.
+ *
+ * It is `CLOCKWISE_EIGHTGUA` reversed with 艮 lifted from seventh place to
+ * first. That asymmetry produced every 陰遁 disagreement this port had with a
+ * reference implementation; the plain reverse removes them. See
+ * docs/PORTING-NOTES.md D10.
  */
-export const YIN_EIGHTGUA_ORDER = [..."艮乾兌坤離巽震坎"];
+export const UPSTREAM_YIN_EIGHTGUA_ORDER = [..."艮乾兌坤離巽震坎"];
 
 /** 金函玉鏡 nine stars. */
 export const GOLDEN_STARS = chunk("太乙攝提軒轅招搖天符青龍咸池太陰天乙", 2);
