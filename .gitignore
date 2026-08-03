@@ -13,3 +13,12 @@ scripts/upstream/
 # local agent settings
 .claude/settings.local.json
 .opencode/
+
+# Research screenshots of third-party software. The findings they support are
+# committed as test-case/FINDINGS.md, which transcribes every figure the
+# conclusions rest on; the images themselves are kept local rather than pushed
+# into permanent history. See the note at the top of that file.
+test-case/**/*.PNG
+test-case/**/*.png
+test-case/**/*.jpg
+test-case/**/*.jpeg
