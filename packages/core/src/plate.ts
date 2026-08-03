@@ -17,7 +17,7 @@ import { pillars } from "./ganzhi.js";
 import { invertRecord, memoize, rotate, tryRotate, zipRecord } from "./util.js";
 import { must } from "./errors.js";
 import { juHead, juLabel, zhifuNZhishi, type Method } from "./zhifu.js";
-import { panGod } from "./stars-doors-gods.js";
+import { panGod, panStar } from "./stars-doors-gods.js";
 
 /**
  * Palace order the plates are walked in, per 遁: 陽遁 clockwise, 陰遁 the plain
@@ -130,3 +130,35 @@ function panSkyUncached(dt: CivilDateTime, method: Method): Record<string, strin
 }
 
 export const panSky = memoize(methodKey, panSkyUncached);
+
+export interface LodgedStem {
+  /** 中宮's stem. */
+  stem: string;
+  /** The palace it is read at — wherever 天禽 currently sits. */
+  palace: string;
+}
+
+/**
+ * Where 中宮's stem is read on the sky plate.
+ *
+ * 中宮 has no place in the rotation, so its stem travels with 天禽, which in
+ * turn has no palace of its own and rides the star whose home is the 寄宮 —
+ * 天芮 under the usual 中宮寄坤. A reference implementation shows the two
+ * together in that palace, and this engine's single `禽` star entry is exactly
+ * that cell, verified across six charts (see test-case/FINDINGS.md).
+ *
+ * Why this is a separate field rather than another entry in `skyPlate`: the
+ * lodged stem is not that palace's own stem. Merging them would say the palace
+ * holds two stems on equal footing, which is not what is happening, and would
+ * silently change a shape clients already read.
+ *
+ * It matters most when the 值符 sits in 中宮 — about one chart in five — because
+ * `skyPlate` then covers only eight palaces and the stem is otherwise nowhere
+ * to be found. That is upstream issue #54.
+ */
+export function lodgedStem(dt: CivilDateTime, method: Method): LodgedStem {
+  const stem = must(panEarth(dt, method)["中"], "earth stem at 中", { ...dt });
+  const stars = panStar(dt, method);
+  const palace = Object.keys(stars).find((g) => stars[g] === "禽");
+  return { stem, palace: must(palace, "palace holding 天禽", { ...dt }) };
+}

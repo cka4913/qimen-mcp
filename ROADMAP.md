@@ -83,6 +83,13 @@ A first attempt at this rule claimed corner palaces take the earlier of their tw
 
 `長生運` now differs from upstream on every chart, so hour-parity stops comparing it and `deviations.spec.ts` D11 holds it to the reference table instead.
 
+### P15 — 中宮's stem (D12) ✅
+Upstream leaves 中宮's stem nowhere findable when the 值符 sits in 中宮: the sky plate then has eight palaces and the stem is simply gone — about one chart in five, and it may well be the day stem someone is looking for. That is upstream issue #54.
+
+The fix turned out far smaller than the first estimate of "make `skyPlate` multi-valued". Comparing six charts against a reference implementation showed 中宮's stem is read alongside 天禽, and that this engine's single `禽` star entry already corresponds exactly to the reference's `禽芮` cell — so the star layer was structurally right all along and only the stem was missing. One added field, `lodgedStem: { stem, palace }`, closes it without changing any existing shape.
+
+Left deliberately undone: the reference counts the lodged stem when detecting 格局, and this engine does not. That interacts with the separate unresolved over-reporting in `greenDragon`, and the two want settling together. 刻家 has no `lodgedStem` either — no reference data was gathered for it.
+
 ---
 
 ## Not doing
@@ -100,7 +107,8 @@ Nothing here is committed; listed so the shape of the gap is visible.
 - **旺相休囚死 per palace.** `lookup_reference` exposes the seasonal table; computing it per palace and folding it into the chart would save the agent a step.
 - **「任一條件滿足」search mode.** The reference app offers per-palace OR alongside per-palace AND, and `find_chart_times` currently implements only AND. Low value on its own, but cheap once someone wants it.
 - **A 用神 helper.** Risky: choosing the 用神 is interpretation, and the engine's line is that interpretation belongs to the agent. If it happens it should return *candidates with their rationale*, never a single answer.
-- **#54 中宮寄干.** Confirmed: 中宮's stem never reaches the sky plate. Narrower than first thought — comparing six charts showed this engine's single `禽` entry already corresponds to the reference's `禽芮` cell, so the star layer is structurally right and only the lodged stem is missing. Expected fix is an additive `lodgedStem` field rather than a `skyPlate` type change.
+- **格局 and the lodged stem.** The reference implementation counts 中宮's lodged stem when detecting 格局 — its 青龍返首 fires on a lodged 戊 over an earth 丙 — while this engine reads only `skyPlate`. Bundled with the unresolved `greenDragon` over-reporting, since fixing either alone would muddy the evidence for the other.
+- **`lodgedStem` for 刻家.** The mechanism is structural and probably applies, but no reference data was gathered for the 刻家 chart, so it is not asserted.
 - **#62 置閏.** Confirmed to diverge at 距節氣 7 days; deferred until the correct 超神／接氣 threshold is established.
 - **Doctrine review of `SKILL.md`.** The 用神 and 格局 tables are assembled from common doctrine and marked as a draft. They need reconciling against a specific transmission before anyone leans on them.
 - **Extending the corpus past 2100.** The solar-term table stops at 2102 and the query range at 2100. Widening both is mechanical.

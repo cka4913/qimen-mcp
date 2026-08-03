@@ -156,6 +156,8 @@ Claude Desktop、Claude Code 等個別 client 的詳細設定步驟、skill 安�
       "zhishiDoor": ["驚", "兌"]
     },
     "skyPlate": {…}, "earthPlate": {…},
+    "lodgedStem": { "stem": "己", "palace": "離" },   // 中宮天干讀於天禽所在宮
+
     "doors": {…}, "stars": {…}, "gods": {…},
     "kong":  { "day": "寅卯", "hour": "申酉" },
     "horses": { "tianMa": "戌", "dingMa": "未", "yiMa": "巳" },
@@ -169,7 +171,7 @@ Claude Desktop、Claude Code 等個別 client 的詳細設定步驟、skill 安�
 
 ## 測試與可信度
 
-- **260 個測試，全數通過**，涵蓋 **69,146 個抽樣時刻**的逐欄比對。
+- **264 個測試，全數通過**，涵蓋 **69,146 個抽樣時刻**的逐欄比對。
 - Golden corpus 由 `scripts/gen-corpus.py` 執行**固定版本**的上游 Python 引擎產生（`f4c6118665253f897889290d8630f9b4cb3a4404`），並將該版本記錄於每份 corpus 檔案；重新產生時若上游版本不符會直接失敗，避免基準悄然漂移。
 - 已知刻意偏離之處記錄於 [docs/PORTING-NOTES.md](docs/PORTING-NOTES.md)，並各自有測試釘住。
 
@@ -183,7 +185,7 @@ Claude Desktop、Claude Code 等個別 client 的詳細設定步驟、skill 安�
 - **排盤 tool 會拒絕不存在的民用日期**（例如 2024-02-30），不會將其靜默正規化為其他日期。此驗證適用於 MCP tool 及主要盤面建構函式；`@cka4913/qimen-core` 部分底層曆法輔助函式（例如 `currentJieqiStart`、`jieqiOnDay`）未附帶相同驗證，直接使用時請自行檢查輸入。
 - **不做時區轉換、日光節約或真太陽時校正**。引擎排的是你傳入的鐘錶時間本身。
 - **23:00 起計為次日子時**（晚子時慣例），22:59 與 23:01 會得出不同日柱。
-- **值符入中宮時，天盤只有八個宮位**——`skyPlate` 缺少 `中` key 屬正常現象（中寄坤），並非資料遺漏。
+- **值符入中宮時，天盤只有八個宮位**——`skyPlate` 缺少 `中` key 屬正常現象（中寄坤），並非資料遺漏。此時中宮天干只出現於 `lodgedStem`（讀於天禽所在宮）。
 - **中宮無門**——`doors` 在時家與刻家盤面中不含 `中` key。
 - **具快取推導結果與完整盤面結果會進行深層凍結**，避免呼叫端修改共享快取狀態；並非全部 `@cka4913/qimen-core` 匯出函式的回傳值皆為 immutable。
 - **`check_patterns` 只涵蓋三個上游有實作的格局**，並非奇門格局全集；其餘吉凶格局需由呼叫端自行由天地盤與門星神組合判斷。
@@ -386,6 +388,8 @@ Full contract: [docs/AI-AGENT-INTEGRATION.md](docs/AI-AGENT-INTEGRATION.md). Alg
       "zhishiDoor": ["驚", "兌"]
     },
     "skyPlate": {…}, "earthPlate": {…},
+    "lodgedStem": { "stem": "己", "palace": "離" },   // 中宮天干讀於天禽所在宮
+
     "doors": {…}, "stars": {…}, "gods": {…},
     "kong":  { "day": "寅卯", "hour": "申酉" },
     "horses": { "tianMa": "戌", "dingMa": "未", "yiMa": "巳" },
@@ -399,7 +403,7 @@ For `render_chart_text` output on the same moment and the complete field referen
 
 ## Testing and Trust
 
-- **260 tests, all passing**, exercising **69,146 sampled moments** compared field by field against upstream.
+- **264 tests, all passing**, exercising **69,146 sampled moments** compared field by field against upstream.
 - The golden corpus is produced by `scripts/gen-corpus.py` running a **pinned upstream commit** (`f4c6118665253f897889290d8630f9b4cb3a4404`); that revision is recorded in every corpus file, and regeneration refuses to run against a different upstream commit — so the baseline cannot silently drift.
 - Deliberate deviations from upstream are documented in [docs/PORTING-NOTES.md](docs/PORTING-NOTES.md), each pinned by its own test.
 
@@ -413,7 +417,7 @@ Sampling covers: uniform sampling across the full 1900–2100 span, dense ten-mi
 - **Chart tools reject impossible civil dates** (e.g. 2024-02-30) instead of silently normalizing them. This validation applies to the MCP tools and the main chart-building functions; some lower-level `@cka4913/qimen-core` calendar helpers (e.g. `currentJieqiStart`, `jieqiOnDay`) do not carry the same validation — check inputs yourself if calling them directly.
 - **No timezone conversion, no daylight saving, no true-solar-time correction.** The engine charts exactly the wall-clock time you give it.
 - **23:00 belongs to the next day** (晚子時 convention); 22:59 and 23:01 produce different day pillars.
-- **The sky plate has eight palaces, not nine, when the Duty Star sits in the center palace** — `skyPlate` missing a `中` key is expected behavior (中寄坤), not a data gap.
+- **The sky plate has eight palaces, not nine, when the Duty Star sits in the center palace** — `skyPlate` missing a `中` key is expected behavior (中寄坤), not a data gap. In that case 中宮's stem appears only in `lodgedStem`, read at whichever palace 天禽 occupies.
 - **The center palace has no gate** — `doors` never carries a `中` key in the hour and minute charts.
 - **Memoized derivations and complete chart results are deep-frozen** to prevent a caller from mutating shared cached state; not every object exported by `@cka4913/qimen-core` is immutable.
 - **`check_patterns` covers only the three patterns upstream implements**, not the full canon of Qi Men patterns. Others must be read by the caller from the plates, gates, stars and gods directly.

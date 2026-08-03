@@ -70,7 +70,9 @@ Neither is "correct". The engine will not choose for you and neither should an a
 
 **Palaces are trigrams.** `坎坤震巽中乾兌艮離` are the keys of every plate. They are identities, not display strings.
 
-**The sky plate sometimes has eight palaces, not nine.** When the 值符 sits in 中宮, 中 is absent from `skyPlate`. That is 中寄坤, not a missing field. Any code that assumes nine keys will break on roughly a ninth of all charts.
+**The sky plate sometimes has eight palaces, not nine.** When the 值符 sits in 中宮, 中 is absent from `skyPlate` — about one chart in five. That is 中寄坤, not a missing field. Any code that assumes nine keys will break.
+
+**Looking for a stem you cannot find? Check `lodgedStem`.** 中宮 has no place in the rotation, so its stem is read at whichever palace 天禽 occupies. `lodgedStem: { stem, palace }` says which stem and where, on every chart. When the 值符 is in 中宮 this is the *only* place that stem appears, which is what makes it worth checking rather than assuming a bug. It is kept out of `skyPlate` because it is not that palace's own stem.
 
 **中宮 has no gate.** `doors` never has a `中` key in the 時家 and 刻家 charts. In the 金函玉鏡 chart it does, carrying an empty string, because upstream emits it that way.
 

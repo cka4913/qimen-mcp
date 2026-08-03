@@ -9,7 +9,7 @@ import type { CivilDateTime } from "./calendar.js";
 import { jieqiName, lunarDate, type LunarDate } from "./calendar.js";
 import { pillars, xunHead, type Pillars } from "./ganzhi.js";
 import { juLabel, tianyi, zhifuNZhishi, type Method, type ZhifuZhishi } from "./zhifu.js";
-import { panEarth, panSky } from "./plate.js";
+import { lodgedStem, panEarth, panSky, type LodgedStem } from "./plate.js";
 import { panDoor, panGod, panStar } from "./stars-doors-gods.js";
 import { dayHourKong, horses } from "./kong-horse.js";
 import { palaceStages, type PalaceStage } from "./changsheng.js";
@@ -40,6 +40,13 @@ export interface QimenChart {
   tianyi: string;
   /** trigram → stem. */
   skyPlate: Record<string, string>;
+  /**
+   * 中宮's stem and the palace it is read at. Separate from `skyPlate` because
+   * it is not that palace's own stem — and because when the 值符 sits in 中宮,
+   * `skyPlate` has only eight palaces and this is the only place the stem
+   * appears at all. See PORTING-NOTES D12.
+   */
+  lodgedStem: LodgedStem;
   earthPlate: Record<string, string>;
   /** trigram → gate / star / god. */
   doors: Record<string, string>;
@@ -92,6 +99,7 @@ export function buildChart(dt: CivilDateTime, method: Method): QimenChart {
     zhifuZhishi: zhifuNZhishi(dt, method),
     tianyi: tianyi(dt, method),
     skyPlate: panSky(dt, method),
+    lodgedStem: lodgedStem(dt, method),
     earthPlate: panEarth(dt, method),
     doors: panDoor(dt, method),
     stars: panStar(dt, method),

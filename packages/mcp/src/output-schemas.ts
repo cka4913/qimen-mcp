@@ -91,6 +91,9 @@ export const qimenChartSchema = z
     zhifuZhishi,
     tianyi: z.string(),
     skyPlate: byPalace,
+    // 中宮's stem and where it is read — not part of skyPlate, because it is not
+    // that palace's own stem, and because skyPlate may omit 中 entirely.
+    lodgedStem: z.object({ stem: z.string(), palace: z.string() }).strict(),
     earthPlate: byPalace,
     doors: byPalace,
     stars: byPalace,

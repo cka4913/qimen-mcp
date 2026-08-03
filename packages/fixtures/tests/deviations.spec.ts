@@ -379,3 +379,67 @@ describe("D11 · 十二長生", () => {
     expect(xun.stages[0]!.stage).not.toBe(xun.stages[1]!.stage);
   });
 });
+
+
+/**
+ * D12 · 中宮's stem is reported, at the palace 天禽 occupies.
+ *
+ * Upstream leaves it nowhere findable when the 值符 sits in 中宮: `pan_sky`
+ * then returns only eight palaces, and 中宮's stem — which may well be the day
+ * stem someone is looking for — is simply absent. That is upstream issue #54.
+ *
+ * A reference implementation (奇門實用版 v7.88) shows the stem alongside 天禽,
+ * which under the usual 中宮寄坤 rides 天芮. Comparing six charts showed this
+ * engine's single `禽` star entry is exactly that cell, so the star layer was
+ * already right and only the stem was missing — which is why the fix is one
+ * added field rather than a change to `skyPlate`'s type.
+ */
+describe("D12 · 中宮's stem is findable", () => {
+  /** Transcribed: the palace the reference shows 中宮's stem in. */
+  const REFERENCE: Array<[string, { year: number; month: number; day: number; hour: number; minute: number }, string, string]> = [
+    ["2027-01-03 寅時 (值符入中宮)", { year: 2027, month: 1, day: 3, hour: 3, minute: 0 }, "壬", "乾"],
+    ["2027-03-15 午時", { year: 2027, month: 3, day: 15, hour: 11, minute: 0 }, "己", "離"],
+    ["2026-01-02 寅時", { year: 2026, month: 1, day: 2, hour: 3, minute: 0 }, "己", "坤"],
+    ["2025-07-28 申時", { year: 2025, month: 7, day: 28, hour: 15, minute: 0 }, "庚", "坤"],
+  ];
+
+  it("matches the reference on every transcribed chart", () => {
+    for (const [label, dt, stem, palace] of REFERENCE) {
+      const chart = buildChart(dt, "chaibu");
+      expect(chart.lodgedStem, label).toEqual({ stem, palace });
+    }
+  });
+
+  it("is always the 中宮 earth stem, read where 天禽 sits", () => {
+    for (const [label, dt] of REFERENCE) {
+      const chart = buildChart(dt, "chaibu");
+      expect(chart.lodgedStem.stem, label).toBe(chart.earthPlate["中"]);
+      expect(chart.stars[chart.lodgedStem.palace], label).toBe("禽");
+    }
+  });
+
+  it("closes the gap: when the 值符 is in 中宮 the stem is otherwise nowhere", () => {
+    // The case issue #54 reports. The day stem is 壬, 中宮's stem is 壬, and the
+    // sky plate — eight palaces here — contains no 壬 at all.
+    const chart = buildChart({ year: 2027, month: 1, day: 3, hour: 3, minute: 0 }, "chaibu");
+    expect(chart.zhifuZhishi.zhifuStar[1]).toBe("中");
+    expect(Object.keys(chart.skyPlate)).toHaveLength(8);
+    expect(Object.values(chart.skyPlate)).not.toContain("壬");
+    expect(chart.pillars.day[0]).toBe("壬");
+    expect(chart.lodgedStem.stem).toBe("壬");
+  });
+
+  it("is present on every chart, not only when the 值符 is in 中宮", () => {
+    let centreless = 0;
+    for (let day = 1; day <= 28; day++) {
+      for (const hour of [0, 3, 7, 11, 15, 19]) {
+        const chart = buildChart({ year: 2027, month: 1, day, hour, minute: 0 }, "chaibu");
+        expect(chart.lodgedStem.stem).toBeTruthy();
+        expect(chart.lodgedStem.palace).toBeTruthy();
+        if (chart.skyPlate["中"] === undefined) centreless++;
+      }
+    }
+    // The sample must actually contain the awkward case, or this proves nothing.
+    expect(centreless).toBeGreaterThan(0);
+  });
+});

@@ -310,6 +310,40 @@ to the reference table and to the issue's own example instead.
 
 ---
 
+## D12 · 中宮's stem is reported, at the palace 天禽 occupies
+
+**Upstream** leaves it nowhere findable when the 值符 sits in 中宮. `pan_sky`
+then returns only eight palaces, and 中宮's stem — which may well be the day
+stem someone is looking for — is simply absent from the sky plate. Measured on a
+month's sample, that is about one chart in five. This is upstream issue #54.
+
+**This port** adds `lodgedStem: { stem, palace }` to the 時家 chart: 中宮's stem,
+and the palace it is read at.
+
+**Evidence.** A reference implementation (奇門實用版 v7.88) shows the stem
+alongside 天禽. 天禽 has no palace of its own either; it rides the star whose
+home is the 寄宮 — 天芮 under the usual 中宮寄坤 setting, and 天任 when that
+setting is changed to 寄艮. Six charts were compared, and this engine's single
+`禽` star entry corresponds exactly to the reference's `禽芮` cell, so the star
+layer was already structurally right and only the stem was missing. Four of
+those charts are carried in `deviations.spec.ts` D12 as fixtures.
+
+**Why a separate field rather than making `skyPlate` multi-valued.** The lodged
+stem is not that palace's own stem. Putting both in one list would assert they
+sit there on equal footing, which is not what happens, and would change a shape
+clients already read. Additive is both more honest and less disruptive.
+
+**Deliberately not done here.** The reference counts the lodged stem when
+detecting 格局 — its 青龍返首 fires on a lodged 戊 over an earth 丙. This port
+does not, so `check_patterns` and `find_chart_times` still read only `skyPlate`.
+Changing that interacts with the separate, unresolved over-reporting in
+`greenDragon` (recorded in `test-case/FINDINGS.md`), and the two should be
+settled together rather than one at a time. The 刻家 chart also has no
+`lodgedStem`, because no reference data was gathered for it — its convention may
+differ, and guessing would defeat the point.
+
+---
+
 ## Not ported at all
 
 - `app.py` — the Streamlit UI, the SVG chart export, the LLM report generator.

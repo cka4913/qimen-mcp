@@ -79,7 +79,7 @@ Simplest of the three: 陽遁 for a 子–巳 hour branch, 陰遁 for 午–亥;
 
 | case | anchor |
 |---|---|
-| 值符 in 中宮 | 坤 (中寄坤); the plate has **eight** palaces, 中 is absent |
+| 值符 in 中宮 | 坤 (中寄坤); the plate has **eight** palaces, 中 is absent — `lodgedStem` reports where its stem is read (see [PORTING-NOTES.md](PORTING-NOTES.md) D12) |
 | 值符星 is 禽 | 坤's stem leads, since 禽 is 中宮's star lent to 坤 |
 | otherwise | the 值符's own stem and palace |
 
