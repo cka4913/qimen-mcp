@@ -108,7 +108,7 @@ The 值符 and 值使 themselves come from per-bureau string tables: each 旬 ge
 
 - **旬空** — the 孤 pair of the relevant 旬. 時家 reports the day's and the hour's; 刻家 the hour's and the 刻's.
 - **馬星** — 天馬 from the day branch, 丁馬 from the day 旬, 驛馬 from the hour branch's 三合 group.
-- **十二長生** — the day stem's cycle, re-keyed from branches to stems, then read for every palace of both plates.
+- **十二長生** — each palace's own stem, read at that palace's own branch, for both plates. The four corner palaces cover two branches each, so they carry two stages, not one; 中宮 carries none. Upstream computed something else — see [PORTING-NOTES.md](PORTING-NOTES.md) D11.
 - **暗干 / 飛干** (刻家 only) — a 360-row lookup on 局+刻柱.
 - **金函玉鏡** — day pillar only. 天乙 starts on a palace that cycles through the sixty days; the other eight 金函 stars follow. 休門's palace advances one step every three days; the other seven gates follow.
 - **格局** — 青龍返首 (sky 戊 over earth 丙), 飛鳥跌穴 (sky 丙 over earth 戊), 玉女守門 (earth 丁 in the 值使門's palace).

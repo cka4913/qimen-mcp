@@ -271,6 +271,45 @@ not to this one.
 
 ---
 
+## D11 · 十二長生 reads the palace, not the day stem
+
+**Upstream** builds the day stem's twelve-stage cycle, then re-keys it from
+branches to stems through a fixed table, and looks the plate's stems up in that.
+The stage it reports for a palace therefore does not depend on that palace at
+all — move a stem to a different palace and its stage follows it unchanged.
+
+**This port** reads each palace's own stem at that palace's own branch.
+
+**Evidence.** Upstream issue #56 reports that on 2025-07-28 15:00, 癸 in 坤
+should be 墓; upstream (and this port before the fix) gave 胎. A reference
+implementation (奇門實用版 v7.88) marks 入墓 on its charts and flags both 癸 in
+坤 and 辛 in 巽 on that exact chart, and publishes a 長生 reference table listing
+which stems reach 長生 in which palace. This port now reproduces that table for
+all ten stems.
+
+**The shape changed too, and that is the more interesting half.** The four corner
+palaces each cover two branches — 巽 is 辰 and 巳, 坤 is 未 and 申, 艮 is 丑 and
+寅, 乾 is 戌 and 亥 — and a stem can be at two different stages across them. 辛
+in 巽 is 墓 at 辰 and 死 at 巳, and both are true. So a corner palace does not
+have *a* stage, and `PalaceStage` carries `stages: Array<{branch, stage}>` rather
+than a single label. 中宮 has no branch and so carries none. An `entombed` flag
+is included because 入墓 is the judgement this is actually used for, and it is
+well defined where a single label is not.
+
+A first draft of this note claimed corner palaces take the *earlier* of their two
+branches. That was wrong, and the way it was wrong is worth keeping: every corner
+palace's 墓 branch happens to be its earlier one, so 墓 evidence cannot separate
+that model from the correct one, and the two observations it rested on were
+guaranteed under either. The 長生 branches are all the *later* ones, which is
+what actually settles it.
+
+**Consequence.** `長生運` now differs from upstream on every chart, both 遁, so
+`hour-parity.spec.ts` does not compare it at all — the two are different
+quantities rather than different values of one. `deviations.spec.ts` D11 holds it
+to the reference table and to the issue's own example instead.
+
+---
+
 ## Not ported at all
 
 - `app.py` — the Streamlit UI, the SVG chart export, the LLM report generator.

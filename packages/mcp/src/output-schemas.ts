@@ -65,7 +65,16 @@ const horses = z.object({ tianMa: z.string(), dingMa: z.string(), yiMa: z.string
 
 const method = z.enum(["chaibu", "zhirun"]);
 
-const palaceStage = z.object({ stem: z.string(), stage: z.string() }).strict();
+const palaceStage = z
+  .object({
+    stem: z.string(),
+    // One entry per branch the palace covers — two for the four corner palaces,
+    // one for the cardinals, none for 中宮. A corner palace genuinely has no
+    // single stage, so this is a list rather than a label.
+    stages: z.array(z.object({ branch: z.string(), stage: z.string() }).strict()),
+    entombed: z.boolean(),
+  })
+  .strict();
 
 export const qimenChartSchema = z
   .object({

@@ -74,6 +74,15 @@ The evidence is clean because 陽遁 was verified first: the two engines agree t
 
 Measured over the corpus: 4,415 陽遁 charts differ in nothing, all 3,809 陰遁 charts differ in sky plate, gates, stars and gods, and the earth plate never differs. The parity suites now skip those four layers on 陰遁 and compare everything else as before; `deviations.spec.ts` D10 carries two reference charts as fixtures and asserts upstream's order would fail them.
 
+### P14 — 十二長生 (D11) ✅
+Upstream reads the *day stem's* cycle and re-keys it through a branch-to-stem table, so the stage it reports for a palace does not depend on that palace at all. This engine now reads each palace's own stem at that palace's own branch, which reproduces a reference implementation's 長生 table for all ten stems and flags 入墓 correctly on upstream issue #56's own example.
+
+The shape changed with it, and that is the more interesting half. The four corner palaces cover two branches each, and a stem can be at two different stages across them — 辛 in 巽 is 墓 at 辰 and 死 at 巳, both true. So `PalaceStage` now carries `stages: Array<{branch, stage}>` plus an `entombed` flag, rather than a single label that would have to be invented for half the palaces. 中宮 has no branch and carries none.
+
+A first attempt at this rule claimed corner palaces take the earlier of their two branches, drawn from two 墓 observations. Every corner palace's 墓 branch *is* its earlier one, so 墓 evidence cannot separate that model from the correct one and both observations were guaranteed either way; the 長生 branches, all later ones, are what settle it. Worth remembering as a shape of mistake, not just an instance.
+
+`長生運` now differs from upstream on every chart, so hour-parity stops comparing it and `deviations.spec.ts` D11 holds it to the reference table instead.
+
 ---
 
 ## Not doing
@@ -91,7 +100,7 @@ Nothing here is committed; listed so the shape of the gap is visible.
 - **旺相休囚死 per palace.** `lookup_reference` exposes the seasonal table; computing it per palace and folding it into the chart would save the agent a step.
 - **「任一條件滿足」search mode.** The reference app offers per-palace OR alongside per-palace AND, and `find_chart_times` currently implements only AND. Low value on its own, but cheap once someone wants it.
 - **A 用神 helper.** Risky: choosing the 用神 is interpretation, and the engine's line is that interpretation belongs to the agent. If it happens it should return *candidates with their rationale*, never a single answer.
-- **#54 中宮寄干 and #56 十二長生.** Both confirmed as real defects with verified target behaviour (see `test-case/FINDINGS.md`), both pending: #54 needs a `skyPlate` data-model change that reaches the MCP output schema, and #56 needs the `stages` field's *shape* decided, since a corner palace has no single stage.
+- **#54 中宮寄干.** Confirmed: 中宮's stem never reaches the sky plate. Narrower than first thought — comparing six charts showed this engine's single `禽` entry already corresponds to the reference's `禽芮` cell, so the star layer is structurally right and only the lodged stem is missing. Expected fix is an additive `lodgedStem` field rather than a `skyPlate` type change.
 - **#62 置閏.** Confirmed to diverge at 距節氣 7 days; deferred until the correct 超神／接氣 threshold is established.
 - **Doctrine review of `SKILL.md`.** The 用神 and 格局 tables are assembled from common doctrine and marked as a draft. They need reconciling against a specific transmission before anyone leans on them.
 - **Extending the corpus past 2100.** The solar-term table stops at 2102 and the query range at 2100. Widening both is mechanical.

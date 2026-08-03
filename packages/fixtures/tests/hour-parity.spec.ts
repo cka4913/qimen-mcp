@@ -87,24 +87,12 @@ function diffChart(chart: QimenChart, want: Upstream): string[] {
     }
   }
 
-  const stages = want["長生運"] as Record<string, Record<string, Record<string, string>>>;
-  for (const [key, mine] of [
-    ["天盤", chart.stages.sky],
-    ["地盤", chart.stages.earth],
-  ] as const) {
-    // The sky half reads the sky plate, so it inherits D10 on 陰遁 charts.
-    if (isYin && key === "天盤") continue;
-    const expected = stages[key] as Record<string, Record<string, string>>;
-    for (const gong of Object.keys(expected)) {
-      const entry = expected[gong] as Record<string, string>;
-      const [stem] = Object.keys(entry);
-      const got = mine[gong];
-      if (!got || got.stem !== stem || got.stage !== entry[stem as string]) {
-        say(`長生運 ${key} ${gong}`, got, entry);
-        break;
-      }
-    }
-  }
+  // 長生運 is not compared at all. Upstream reads the *day stem's* cycle through
+  // a branch-to-stem table, so its answer does not depend on the palace being
+  // read; this engine reads the palace's own stem at the palace's own branch,
+  // and reports one stage per branch because a corner palace covers two. The
+  // two are different quantities, not different values of one — see
+  // PORTING-NOTES D11, pinned by deviations.spec.ts.
 
   return out;
 }

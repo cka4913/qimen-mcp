@@ -17,7 +17,7 @@
 
 `qimen-mcp` 是奇門遁甲（時家、刻家、金函玉鏡）的 deterministic 計算引擎，以純 TypeScript 實作，並透過 stdio MCP server 對外提供結構化的盤面資料。
 
-呼叫任何一個排盤 tool，得到的是一組事實：天地兩盤各宮位配置何種天干、值符值使落在哪個宮位、九星八門八神的排列、旬空與馬星、每個宮位的十二長生階段。**引擎本身不做吉凶判斷，亦不產生敘述性解讀**——這部分屬於呼叫端 agent 的責任。專案隨附 [`skills/qimen/SKILL.md`](skills/qimen/SKILL.md)，作為 agent 進行解讀時的參考流程，但該文件所載的取用神與格局判斷屬於未經流派校訂的草稿，使用前應自行核實。
+呼叫任何一個排盤 tool，得到的是一組事實：天地兩盤各宮位配置何種天干、值符值使落在哪個宮位、九星八門八神的排列、旬空與馬星、每個宮位的十二長生階段（四維宮兩支各一，故為列表）。**引擎本身不做吉凶判斷，亦不產生敘述性解讀**——這部分屬於呼叫端 agent 的責任。專案隨附 [`skills/qimen/SKILL.md`](skills/qimen/SKILL.md)，作為 agent 進行解讀時的參考流程，但該文件所載的取用神與格局判斷屬於未經流派校訂的草稿，使用前應自行核實。
 
 本專案由 [kentang2017/kinqimen](https://github.com/kentang2017/kinqimen)（Python 實作，附 Streamlit 前端）移植而成。上游 repository 未有改動；本專案抽取其計算邏輯，移除 UI 與報告產生器，並以 `lunar-javascript` 取代 `sxtwl`／`ephem` 兩個原生擴充套件。移植的忠實度並非單憑聲稱，而是透過測試逐欄驗證——詳見下方「測試與可信度」一節。
 
@@ -159,7 +159,7 @@ Claude Desktop、Claude Code 等個別 client 的詳細設定步驟、skill 安�
     "doors": {…}, "stars": {…}, "gods": {…},
     "kong":  { "day": "寅卯", "hour": "申酉" },
     "horses": { "tianMa": "戌", "dingMa": "未", "yiMa": "巳" },
-    "stages": { "sky": {…}, "earth": {…} }
+    "stages": { "sky": {…}, "earth": {…} }   // 每宮一至兩個階段，見 RULES.md
   }
 ```
 
@@ -169,7 +169,7 @@ Claude Desktop、Claude Code 等個別 client 的詳細設定步驟、skill 安�
 
 ## 測試與可信度
 
-- **251 個測試，全數通過**，涵蓋 **69,146 個抽樣時刻**的逐欄比對。
+- **260 個測試，全數通過**，涵蓋 **69,146 個抽樣時刻**的逐欄比對。
 - Golden corpus 由 `scripts/gen-corpus.py` 執行**固定版本**的上游 Python 引擎產生（`f4c6118665253f897889290d8630f9b4cb3a4404`），並將該版本記錄於每份 corpus 檔案；重新產生時若上游版本不符會直接失敗，避免基準悄然漂移。
 - 已知刻意偏離之處記錄於 [docs/PORTING-NOTES.md](docs/PORTING-NOTES.md)，並各自有測試釘住。
 
@@ -247,7 +247,7 @@ Claude Desktop、Claude Code 等個別 client 的詳細設定步驟、skill 安�
 
 `qimen-mcp` is a deterministic calculation engine for Qi Men Dun Jia (時家/刻家/金函玉鏡 — hour-based, minute-based, and daily charts), implemented in pure TypeScript and exposed over a stdio MCP server as structured chart data.
 
-Call any chart tool and you get back facts: which stem sits in which palace on both plates, where the Duty Star (值符) and Duty Gate (值使) landed, the arrangement of the nine stars, eight gates and eight gods, the void branches (旬空) and the three horse stars (馬星), and the twelve life stages of every palace. **The engine does not judge fortune or produce narrative interpretation** — that is the calling agent's responsibility. The repository ships [`skills/qimen/SKILL.md`](skills/qimen/SKILL.md) as a reference procedure for agents doing that interpretation, but the 用神-selection and pattern-reading material in that document is an unreviewed draft assembled from common doctrine and should be verified against your own tradition before use.
+Call any chart tool and you get back facts: which stem sits in which palace on both plates, where the Duty Star (值符) and Duty Gate (值使) landed, the arrangement of the nine stars, eight gates and eight gods, the void branches (旬空) and the three horse stars (馬星), and the twelve life stages of every palace (a list, since the four corner palaces cover two branches each). **The engine does not judge fortune or produce narrative interpretation** — that is the calling agent's responsibility. The repository ships [`skills/qimen/SKILL.md`](skills/qimen/SKILL.md) as a reference procedure for agents doing that interpretation, but the 用神-selection and pattern-reading material in that document is an unreviewed draft assembled from common doctrine and should be verified against your own tradition before use.
 
 This project is ported from [kentang2017/kinqimen](https://github.com/kentang2017/kinqimen) (Python, with a Streamlit front end). The upstream repository is untouched; this one extracts the calculation logic, drops the UI and report generator, and replaces the `sxtwl`/`ephem` native extensions with `lunar-javascript`. Faithfulness to upstream is not merely claimed — it is verified field by field; see "Testing and Trust" below.
 
@@ -389,7 +389,7 @@ Full contract: [docs/AI-AGENT-INTEGRATION.md](docs/AI-AGENT-INTEGRATION.md). Alg
     "doors": {…}, "stars": {…}, "gods": {…},
     "kong":  { "day": "寅卯", "hour": "申酉" },
     "horses": { "tianMa": "戌", "dingMa": "未", "yiMa": "巳" },
-    "stages": { "sky": {…}, "earth": {…} }
+    "stages": { "sky": {…}, "earth": {…} }   // 每宮一至兩個階段，見 RULES.md
   }
 ```
 
@@ -399,7 +399,7 @@ For `render_chart_text` output on the same moment and the complete field referen
 
 ## Testing and Trust
 
-- **251 tests, all passing**, exercising **69,146 sampled moments** compared field by field against upstream.
+- **260 tests, all passing**, exercising **69,146 sampled moments** compared field by field against upstream.
 - The golden corpus is produced by `scripts/gen-corpus.py` running a **pinned upstream commit** (`f4c6118665253f897889290d8630f9b4cb3a4404`); that revision is recorded in every corpus file, and regeneration refuses to run against a different upstream commit — so the baseline cannot silently drift.
 - Deliberate deviations from upstream are documented in [docs/PORTING-NOTES.md](docs/PORTING-NOTES.md), each pinned by its own test.
 

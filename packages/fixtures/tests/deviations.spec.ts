@@ -11,6 +11,8 @@
 import { describe, expect, it } from "vitest";
 import {
   JIAZI,
+  PALACE_BRANCHES,
+  TIAN_GAN,
   UPSTREAM_YIN_EIGHTGUA_ORDER,
   addDays,
   buildChart,
@@ -18,8 +20,10 @@ import {
   hourBranch,
   jieqiMomentInYear,
   jieqiName,
+  palacesAtStage,
   pillars,
   rotationOrder,
+  stageInPalace,
 } from "@cka4913/qimen-core";
 import {
   EPHEM_PRECISION_BREAKDOWN,
@@ -283,5 +287,95 @@ describe("D10 · the 陰遁 rotation order", () => {
     expect(chart.ju).toBe("陽遁四局下");
     expect(chart.skyPlate).toMatchObject({ 巽: "癸", 離: "丙", 坤: "辛", 震: "戊", 兌: "庚", 艮: "乙", 坎: "壬", 乾: "丁" });
     expect(chart.doors).toMatchObject({ 巽: "景", 離: "死", 坤: "驚", 震: "杜", 兌: "開", 艮: "傷", 坎: "生", 乾: "休" });
+  });
+});
+
+
+/**
+ * D11 · 十二長生 reads the palace's own stem at the palace's own branch.
+ *
+ * Upstream takes the *day stem's* cycle and re-keys it through a fixed
+ * branch-to-stem table, so the stage it reports for a palace does not depend on
+ * that palace at all. That is not a variant reading; it is a different
+ * quantity, and it disagrees with both the reference implementation and the
+ * upstream issue that reported it (#56).
+ *
+ * The rule was pinned from two directions. The reference implementation's
+ * 長生 table lists, for each palace, which stems reach 長生 there — reproduced
+ * exactly below. And its charts flag a stem sitting in its own 墓 palace, which
+ * on the issue's own example (2025-07-28 15:00) marks both 癸 in 坤 and 辛 in 巽.
+ *
+ * An earlier draft of this deviation said corner palaces take the *earlier* of
+ * their two branches. That was wrong, and instructive: every corner palace's 墓
+ * branch happens to be its earlier one, so 墓 evidence alone cannot separate the
+ * two models and those two hits were guaranteed either way. The 長生 branches
+ * are all the *later* ones, which is what settles it — see test-case/FINDINGS.md.
+ */
+describe("D11 · 十二長生", () => {
+  /** Transcribed from the reference implementation's 長生 reference table. */
+  const REFERENCE_CHANGSHENG: Record<string, string[]> = {
+    坎: ["辛"],
+    艮: ["丙", "戊"],
+    震: ["癸"],
+    巽: ["庚"],
+    離: ["乙"],
+    坤: ["壬"],
+    兌: ["丁", "己"],
+    乾: ["甲"],
+  };
+
+  it("reproduces the reference 長生 table for all ten stems", () => {
+    const mine: Record<string, string[]> = {};
+    for (const stem of TIAN_GAN) {
+      for (const gong of palacesAtStage(stem, "長生")) (mine[gong] ??= []).push(stem);
+    }
+    for (const [gong, want] of Object.entries(REFERENCE_CHANGSHENG)) {
+      expect([...(mine[gong] ?? [])].sort(), gong).toEqual([...want].sort());
+    }
+    // Ten stems, each 長生 in exactly one palace.
+    expect(Object.values(mine).flat()).toHaveLength(10);
+  });
+
+  it("a corner palace covers both branches, so the earlier-branch reading is wrong", () => {
+    // 庚's 長生 is 巳, the *later* branch of 巽. Under an earlier-branch-only
+    // reading 庚 would be 養 there and would not appear in the table at all.
+    expect(stageInPalace("庚", "巽").stages).toEqual([
+      { branch: "辰", stage: "養" },
+      { branch: "巳", stage: "長生" },
+    ]);
+    expect(palacesAtStage("庚", "長生")).toEqual(["巽"]);
+  });
+
+  it("flags 入墓 on the issue's own example, which upstream got wrong", () => {
+    // 2025-07-28 15:00 陰遁七局拆補: the reference marks 墓 on both of these.
+    // Upstream — and this port before the fix — gave 癸 in 坤 as 胎.
+    for (const [stem, gong] of [
+      ["癸", "坤"],
+      ["辛", "巽"],
+    ] as const) {
+      const s = stageInPalace(stem, gong);
+      expect(s.entombed, `${stem}@${gong}`).toBe(true);
+      expect(s.stages.some((x) => x.stage === "墓"), `${stem}@${gong}`).toBe(true);
+    }
+    const chart = buildChart({ year: 2025, month: 7, day: 28, hour: 15, minute: 0 }, "chaibu");
+    expect(chart.earthPlate["坤"]).toBe("癸");
+    expect(chart.stages.earth["坤"]!.entombed).toBe(true);
+  });
+
+  it("gives 中宮 no stage, because it has no branch", () => {
+    expect(PALACE_BRANCHES["中"]).toBeUndefined();
+    expect(stageInPalace("庚", "中")).toEqual({ stem: "庚", stages: [], entombed: false });
+  });
+
+  it("reports one stage per branch, never a single label for a corner palace", () => {
+    const chart = buildChart({ year: 2027, month: 3, day: 15, hour: 11, minute: 0 }, "chaibu");
+    for (const [gong, entry] of Object.entries(chart.stages.earth)) {
+      const branches = PALACE_BRANCHES[gong] ?? [];
+      expect(entry.stages.map((s) => s.branch), gong).toEqual([...branches]);
+    }
+    // 巽 is a corner: two branches, and here they genuinely disagree.
+    const xun = chart.stages.earth["巽"]!;
+    expect(xun.stages).toHaveLength(2);
+    expect(xun.stages[0]!.stage).not.toBe(xun.stages[1]!.stage);
   });
 });
