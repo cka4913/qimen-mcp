@@ -18,6 +18,7 @@ const SKILL = readFileSync(
 
 const TOOL_NAMES = [
   "resolve_time",
+  "find_chart_times",
   "get_qimen_chart",
   "get_qimen_chart_minute",
   "get_golden_mirror_chart",
@@ -46,7 +47,15 @@ describe("SKILL.md is honest about the tools", () => {
   it("every backticked tool name it mentions exists", () => {
     const mentioned = [...SKILL.matchAll(/`(\w+)`/g)]
       .map((m) => m[1] as string)
-      .filter((name) => name.startsWith("get_") || name.startsWith("check_") || name === "resolve_time" || name === "lookup_reference" || name === "render_chart_text");
+      .filter(
+        (name) =>
+          name.startsWith("get_") ||
+          name.startsWith("check_") ||
+          name.startsWith("find_") ||
+          name === "resolve_time" ||
+          name === "lookup_reference" ||
+          name === "render_chart_text"
+      );
     expect(mentioned.length).toBeGreaterThan(5);
     for (const name of new Set(mentioned)) expect(TOOL_NAMES, `unknown tool ${name}`).toContain(name);
   });

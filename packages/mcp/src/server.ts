@@ -3,6 +3,7 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import { ENGINE_VERSION } from "@cka4913/qimen-core";
 import { registerGoldenMirror, registerJu, registerKeChart, registerQimenChart } from "./tools/charts.js";
 import { registerLookup, registerPatterns, registerRenderText, registerResolveTime, registerSixwu } from "./tools/misc.js";
+import { registerSearch } from "./tools/search.js";
 
 export function createServer(): McpServer {
   const server = new McpServer({ name: "qimen-mcp", version: ENGINE_VERSION });
@@ -12,6 +13,7 @@ export function createServer(): McpServer {
   registerKeChart(server);
   registerGoldenMirror(server);
   registerJu(server);
+  registerSearch(server);
   registerPatterns(server);
   registerSixwu(server);
   registerRenderText(server);

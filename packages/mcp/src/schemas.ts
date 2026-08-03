@@ -36,6 +36,17 @@ export const datetimeShape = { datetime: datetimeSchema };
 // once, which is how often the question actually gets asked.
 export const chartShape = { datetime: datetimeSchema, method: methodSchema };
 
+export const dateSchema = z
+  .string()
+  .regex(/^\d{4}-\d{2}-\d{2}$/, "expected YYYY-MM-DD")
+  .describe(`日期，格式 "YYYY-MM-DD"。同 datetime 一樣係當地民用日期，唔做時區換算。支援 ${MIN_YEAR}–${MAX_YEAR} 年。`);
+
+/** Parse a validated date string. Never throws for a value that passed the schema. */
+export function toCivilDate(value: string): { year: number; month: number; day: number } {
+  const [year, month, day] = value.split("-").map(Number) as [number, number, number];
+  return { year, month, day };
+}
+
 /** Parse the validated string into the engine's shape. Never throws for a value that passed the schema. */
 export function toCivilDateTime(value: string): CivilDateTime {
   const [date, time] = value.replace(" ", "T").split("T") as [string, string];

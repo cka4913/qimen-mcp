@@ -35,6 +35,7 @@
 | 真人閉六戊法 | 法術奇門路徑計算（演義版／寶鑑版） |
 | 文字盤 | 九宮方格文字視圖，方便直接呈現 |
 | 名詞查詢 | 八門、九星、八神、天干地支、九宮、節氣的屬性字典 |
+| 找局 | 依盤面條件搜尋符合的時辰，用於擇時；條件須同宮成立 |
 
 ---
 
@@ -53,7 +54,7 @@
 ```
 packages/
 ├─ core/       純計算引擎——曆法、干支、排局、天地盤、格局。無 I/O
-├─ mcp/        stdio MCP server——9 個 tool、zod schema、錯誤映射
+├─ mcp/        stdio MCP server——10 個 tool、zod schema、錯誤映射
 └─ fixtures/   由上游記錄的 golden corpus，以及逐欄比對測試（僅供測試使用）
 skills/
 └─ qimen/SKILL.md    供 agent 載入的解讀程序（草稿）
@@ -132,8 +133,9 @@ Claude Desktop、Claude Code 等個別 client 的詳細設定步驟、skill 安�
 | `get_closed_sixwu` | `datetime` 或 `xunHead`, `version` | 真人閉六戊法路徑，共七步 |
 | `render_chart_text` | `datetime`, `method`, `style?` | 九宮文字盤 |
 | `lookup_reference` | `category`, `key?` | 單一名詞的全稱、五行及屬性 |
+| `find_chart_times` | `start`, 各項盤面條件 | 搜尋符合條件的時辰（擇時），條件須同宮成立 |
 
-`lookup_reference` 因應 `category` 不同而回傳不同形狀，因此不宣告固定 `outputSchema`；其餘八個 tool 皆有完整 input／output schema。
+`lookup_reference` 因應 `category` 不同而回傳不同形狀，因此不宣告固定 `outputSchema`；其餘九個 tool 皆有完整 input／output schema。
 
 完整契約見 [docs/AI-AGENT-INTEGRATION.md](docs/AI-AGENT-INTEGRATION.md)；演算法細節見 [docs/RULES.md](docs/RULES.md)。
 
@@ -167,7 +169,7 @@ Claude Desktop、Claude Code 等個別 client 的詳細設定步驟、skill 安�
 
 ## 測試與可信度
 
-- **230 個測試，全數通過**，涵蓋 **69,146 個抽樣時刻**的逐欄比對。
+- **251 個測試，全數通過**，涵蓋 **69,146 個抽樣時刻**的逐欄比對。
 - Golden corpus 由 `scripts/gen-corpus.py` 執行**固定版本**的上游 Python 引擎產生（`f4c6118665253f897889290d8630f9b4cb3a4404`），並將該版本記錄於每份 corpus 檔案；重新產生時若上游版本不符會直接失敗，避免基準悄然漂移。
 - 已知刻意偏離之處記錄於 [docs/PORTING-NOTES.md](docs/PORTING-NOTES.md)，並各自有測試釘住。
 
@@ -263,6 +265,7 @@ This project is ported from [kentang2017/kinqimen](https://github.com/kentang201
 | 真人閉六戊法 (Closed Six Wu) | The occult path calculation, in either transmission |
 | Text chart | The nine-palace grid rendered as plain text |
 | Reference lookup | Names, elements and attributes for gates, stars, gods, stems, branches, palaces and solar terms |
+| Chart search (找局) | Find 時辰 whose plates satisfy a set of conditions, for 擇時; conditions must hold in one palace |
 
 ---
 
@@ -281,7 +284,7 @@ This project is ported from [kentang2017/kinqimen](https://github.com/kentang201
 ```
 packages/
 ├─ core/       pure calculation engine — calendar, pillars, bureau, plates, charts. Zero I/O
-├─ mcp/        stdio MCP server — 9 tools, zod schemas, error mapping
+├─ mcp/        stdio MCP server — 10 tools, zod schemas, error mapping
 └─ fixtures/   golden corpus recorded from upstream + the parity test suites (test-only)
 skills/
 └─ qimen/SKILL.md    interpretation procedure for an agent to load (draft)
@@ -360,8 +363,9 @@ Detailed setup for Claude Desktop, Claude Code and similar clients, plus skill i
 | `get_closed_sixwu` | `datetime` or `xunHead`, `version` | 閉六戊 path, seven steps |
 | `render_chart_text` | `datetime`, `method`, `style?` | The nine-palace square as text |
 | `lookup_reference` | `category`, `key?` | Name, element and attributes of one term |
+| `find_chart_times` | `start`, plate conditions | Search for 時辰 matching the conditions, all in one palace |
 
-`lookup_reference`'s result shape varies by `category`, so it declares no fixed `outputSchema`; the other eight tools each declare a complete input and output schema.
+`lookup_reference`'s result shape varies by `category`, so it declares no fixed `outputSchema`; the other nine tools each declare a complete input and output schema.
 
 Full contract: [docs/AI-AGENT-INTEGRATION.md](docs/AI-AGENT-INTEGRATION.md). Algorithm details: [docs/RULES.md](docs/RULES.md).
 
@@ -395,7 +399,7 @@ For `render_chart_text` output on the same moment and the complete field referen
 
 ## Testing and Trust
 
-- **230 tests, all passing**, exercising **69,146 sampled moments** compared field by field against upstream.
+- **251 tests, all passing**, exercising **69,146 sampled moments** compared field by field against upstream.
 - The golden corpus is produced by `scripts/gen-corpus.py` running a **pinned upstream commit** (`f4c6118665253f897889290d8630f9b4cb3a4404`); that revision is recorded in every corpus file, and regeneration refuses to run against a different upstream commit — so the baseline cannot silently drift.
 - Deliberate deviations from upstream are documented in [docs/PORTING-NOTES.md](docs/PORTING-NOTES.md), each pinned by its own test.
 

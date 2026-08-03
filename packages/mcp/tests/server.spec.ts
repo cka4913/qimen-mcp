@@ -41,6 +41,7 @@ const WHEN = "2024-06-15T14:30";
 
 const ALL_TOOLS = [
   "check_patterns",
+  "find_chart_times",
   "get_closed_sixwu",
   "get_golden_mirror_chart",
   "get_ju",
@@ -81,6 +82,10 @@ describe("tool registration", () => {
     expect(declared["render_chart_text"]).toEqual(["datetime", "method", "style"]);
     expect(declared["lookup_reference"]).toEqual(["category", "key"]);
     expect(declared["resolve_time"]).toEqual(["timezone"]);
+    expect(declared["find_chart_times"]).toEqual([
+      "direction", "doors", "earthStems", "end", "gods", "limit",
+      "maxDays", "method", "palaces", "patterns", "skyStems", "stars", "start",
+    ]);
   });
 });
 
@@ -174,6 +179,54 @@ describe("every tool serves its happy path", () => {
     expect(data.keys).toHaveLength(8);
   });
 
+  it("find_chart_times", async () => {
+    const { isError, data } = await call("find_chart_times", {
+      start: "2026-08-03",
+      end: "2026-08-03",
+      method: "chaibu",
+      doors: ["生"],
+      limit: 50,
+    });
+    expect(isError).toBe(false);
+    // Every chart carries all eight gates, so a bare gate condition over one
+    // day matches all twelve 時辰 — and each hit names the palace it matched in.
+    expect(data.returned).toBe(12);
+    for (const m of data.matches) {
+      expect(m.matched.door).toBe("生");
+      expect(m.palace).toBeTruthy();
+    }
+  });
+
+  it("find_chart_times matches per-palace, not per-chart", async () => {
+    const base = { start: "2026-08-03", end: "2026-08-03", method: "chaibu", limit: 50 };
+    const door = await call("find_chart_times", { ...base, doors: ["生"] });
+    const sky = await call("find_chart_times", { ...base, skyStems: ["丙"] });
+    const both = await call("find_chart_times", { ...base, doors: ["生"], skyStems: ["丙"] });
+    expect(door.data.returned).toBe(12);
+    expect(sky.data.returned).toBe(12);
+    // Under per-chart semantics this would also be 12. It is not.
+    expect(both.data.returned).toBeLessThan(12);
+    for (const m of both.data.matches) {
+      expect(m.matched.door).toBe("生");
+      expect(m.matched.skyStem).toBe("丙");
+    }
+  });
+
+  it("find_chart_times stops at the limit and hands back a cursor", async () => {
+    const { data } = await call("find_chart_times", {
+      start: "2026-08-03",
+      method: "chaibu",
+      doors: ["生"],
+      limit: 3,
+    });
+    expect(data.returned).toBe(3);
+    expect(data.limitReached).toBe(true);
+    expect(data.budgetExhausted).toBe(false);
+    expect(data.scannedThrough).toHaveProperty("year");
+    // No totalMatches: an early-stopping scan cannot know it.
+    expect(data).not.toHaveProperty("totalMatches");
+  });
+
   it("resolve_time", async () => {
     const { isError, data } = await call("resolve_time", { timezone: "Asia/Hong_Kong" });
     expect(isError).toBe(false);
@@ -218,6 +271,30 @@ describe("business errors carry a code an agent can branch on", () => {
     const { isError, data } = await call("resolve_time", { timezone: "Mars/Olympus_Mons" });
     expect(isError).toBe(true);
     expect(data.error.code).toBe("TIMEZONE_INVALID");
+  });
+
+  it("ARGUMENT_REQUIRED for a search that can never match", async () => {
+    // 中宮 carries no gate, so this is unsatisfiable by construction. Saying so
+    // beats returning an empty list that looks like a real answer.
+    const { isError, data } = await call("find_chart_times", {
+      start: "2026-08-03",
+      method: "chaibu",
+      palaces: ["中"],
+      doors: ["生"],
+    });
+    expect(isError).toBe(true);
+    expect(data.error.code).toBe("ARGUMENT_REQUIRED");
+  });
+
+  it("ARGUMENT_REQUIRED when end lies the wrong side of start", async () => {
+    const { isError, data } = await call("find_chart_times", {
+      start: "2026-08-03",
+      end: "2026-07-01",
+      method: "chaibu",
+      doors: ["生"],
+    });
+    expect(isError).toBe(true);
+    expect(data.error.code).toBe("ARGUMENT_REQUIRED");
   });
 
   it("UNKNOWN_REFERENCE_KEY for a term that is not in the dictionary", async () => {

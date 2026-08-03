@@ -23,8 +23,23 @@ Every tool is a pure function of its arguments. Same input, same output, forever
 | `get_closed_sixwu` | `datetime` or `xunHead`, `version` | 閉六戊 path: seven steps, branch and palace |
 | `render_chart_text` | `datetime`, `method`, `style?` | The nine-palace square as text |
 | `lookup_reference` | `category`, `key?` | Name, element and attributes of one term |
+| `find_chart_times` | `start`, plate conditions | 時辰 whose plates satisfy the conditions, all in one palace |
 
 Every tool except `lookup_reference` declares an `outputSchema`, so a client can read the full result shape from `tools/list` rather than inferring it. `lookup_reference` is exempt because its payload differs per category.
+
+---
+
+## `find_chart_times` — the one tool that searches
+
+Everything else answers "what is the chart for this moment". This one answers "which moments have a chart like this", which is what 擇時 actually needs. Three things about it are easy to get wrong.
+
+**Conditions are per-palace, not per-chart.** `doors: ["生"], skyStems: ["丙"]` finds palaces where 生門 and 丙 sit *together*. It does not find charts that contain both somewhere. Each hit names the palace it matched in. This was established empirically against a separate commercial implementation; the protocol and data are in `test-case/FINDINGS.md`.
+
+**Most single conditions are not selective.** Every chart carries all eight gates, all eight gods, all eight stars and eight or nine sky stems. So `doors: ["生"]` with no palace restriction matches *every* 時辰 — 100% of them. Even 格局 is common: 青龍返首 occurs in roughly 18% of all 時辰. Useful density comes from combining conditions or naming a palace.
+
+**There is no total count.** The scan stops the moment it has `limit` matches, so it does not know how many more exist. Reporting a number it never counted would be worse than reporting none. Use `scannedThrough` as the next `start` to continue, and read `limitReached` / `budgetExhausted` to tell "there are probably more" from "I gave up looking".
+
+`maxDays` bounds the scan so an unsatisfiable query terminates. Asking for both 青龍返首 and 飛鳥跌穴 in one palace is unsatisfiable by construction — one is 戊 over 丙, the other 丙 over 戊 — and will simply burn the budget and return nothing.
 
 ---
 
@@ -80,7 +95,7 @@ Two channels, and they look different on the wire:
 |---|---|
 | `DATETIME_INVALID` | A field is out of range, or the date does not exist (e.g. 2024-02-30) |
 | `DATETIME_OUT_OF_RANGE` | Year outside 1900–2100 |
-| `ARGUMENT_REQUIRED` | A one-of requirement the schema cannot express — `get_closed_sixwu` needs `datetime` or `xunHead` |
+| `ARGUMENT_REQUIRED` | A requirement the schema cannot express — `get_closed_sixwu` needs `datetime` or `xunHead`; `find_chart_times` rejects an `end` on the wrong side of `start`, and a 中宮-only search for a 門/星/神 that 中宮 never carries |
 | `TIMEZONE_INVALID` | `resolve_time` was handed an unknown IANA zone |
 | `UNKNOWN_REFERENCE_KEY` | `lookup_reference` was handed a key that category does not have |
 

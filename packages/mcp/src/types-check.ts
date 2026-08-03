@@ -13,11 +13,12 @@
  * which is what actually drifts.
  */
 import type { z } from "zod";
-import type { GoldenMirrorChart, KeChart, QimenChart, SixwuPath, ZhirunRaw } from "@cka4913/qimen-core";
+import type { GoldenMirrorChart, KeChart, QimenChart, SearchResult, SixwuPath, ZhirunRaw } from "@cka4913/qimen-core";
 import type {
   goldenMirrorChartSchema,
   keChartSchema,
   qimenChartSchema,
+  searchResultSchema,
   sixwuResultSchema,
   zhirunRawSchema,
 } from "./output-schemas.js";
@@ -33,6 +34,7 @@ type _Ke = Assert<MutuallyAssignable<z.infer<typeof keChartSchema>, KeChart>>;
 type _Golden = Assert<MutuallyAssignable<z.infer<typeof goldenMirrorChartSchema>, GoldenMirrorChart>>;
 type _Zhirun = Assert<MutuallyAssignable<z.infer<typeof zhirunRawSchema>, ZhirunRaw>>;
 type _Sixwu = Assert<MutuallyAssignable<z.infer<typeof sixwuResultSchema>, SixwuPath>>;
+type _Search = Assert<MutuallyAssignable<z.infer<typeof searchResultSchema>, SearchResult>>;
 
 // Referencing the aliases keeps them from being elided as unused.
-export type OutputSchemaChecks = [_Chart, _Ke, _Golden, _Zhirun, _Sixwu];
+export type OutputSchemaChecks = [_Chart, _Ke, _Golden, _Zhirun, _Sixwu, _Search];

@@ -84,10 +84,11 @@ describe("compiled entry point", () => {
 });
 
 describe("tools over a real pipe", () => {
-  it("lists all nine tools", async () => {
+  it("lists all ten tools", async () => {
     const { result } = await request("tools/list");
     expect(result.tools.map((t: any) => t.name).sort()).toEqual([
       "check_patterns",
+      "find_chart_times",
       "get_closed_sixwu",
       "get_golden_mirror_chart",
       "get_ju",

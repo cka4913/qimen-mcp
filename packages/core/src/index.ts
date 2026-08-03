@@ -16,4 +16,5 @@ export * from "./patterns.js";
 export * from "./sixwu.js";
 export * from "./reference.js";
 export * from "./render-text.js";
+export * from "./search.js";
 export { ENGINE_VERSION } from "./version.js";

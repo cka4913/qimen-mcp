@@ -56,6 +56,15 @@ Second: the user asked whether 年命宮 (anchoring a reading on the querent's b
 ### P11 — Month/year pillar exact-term switching ✅
 `ganzhi.ts` month and year pillars switched to the exact 節 / 立春 minute from the project's own sxtwl table, closing the internal contradiction between a chart's `節氣` field and its `月柱` on term days (upstream issue #53). Verified independently before coding: the arithmetic `(year-4) mod 60` matches `getYearInGanZhiByLiChun` on all of 1900–2101, and `pillars().month`/`.year` have no downstream consumer (排局, plates, 馬星, 長生, 格局, 閉六戊 read only `.day`/`.hour`/`.ke`), so no 盤面 field changed. Pinned by D9 in `deviations.spec.ts` (month↔節氣 self-consistency, year↔立春, bounded divergence census) plus a per-節 boundary suite; the calendar/hour/minute parity suites now compare only the day/hour/ke pillars directly. See [docs/PORTING-NOTES.md](docs/PORTING-NOTES.md) D9.
 
+### P12 — 找局 (`find_chart_times`) ✅
+Scan forward or backward for 時辰 whose plates satisfy a set of conditions — the 擇時 direction, which every other tool is the inverse of.
+
+The matching semantics were not invented. A separate commercial implementation (奇門實用版 v7.88) was probed with a designed experiment whose conclusion rests only on relations *between its own outputs*, so it holds despite that app building 陰遁 charts differently from this engine: three searches on one day returned 12 / 2 / 22 hits, figures that are self-consistent only under per-palace AND, per-palace OR, and the fact that every chart carries all eight gates. Its `查詢數 108` = 12 時辰 × 9 宮 confirmed the matching unit is a palace-hour pair, and its 格局 hits are palace-attributed (`「青龍返首」(兌七宮)`). Protocol, screenshots and data are in `test-case/FINDINGS.md`.
+
+Design consequences: conditions AND within one palace; 格局 is a palace-level condition like any other (so asking for 青龍返首 and 飛鳥跌穴 together correctly yields nothing — one is 戊 over 丙, the other the reverse); the scan stops at `limit` and returns a `scannedThrough` cursor rather than a total it never counted; `maxDays` bounds an unsatisfiable query. Measured: typical 擇時 queries resolve in 1–35 ms scanning 100–500 時辰; an impossible query burns the full five-year budget in 1.6 s and says so.
+
+Incidental cross-check: the search independently reproduced the reference app's `2026-08-08 寅時 兌宮 青龍返首＋生門` hit, on a 陰遁 day where the two engines otherwise diverge.
+
 ---
 
 ## Not doing
@@ -71,6 +80,7 @@ Nothing here is committed; listed so the shape of the gap is visible.
 
 - **More 格局.** The engine detects the three upstream implements. The classical canon has dozens (三奇得使, 白虎猖狂, 螣蛇夭矯, 朱雀投江, 青龍逃走…), all of which are pattern matches over the plates and would fit the facts-engine contract cleanly. The blocker is sourcing the conditions from a transmission worth trusting, not the code.
 - **旺相休囚死 per palace.** `lookup_reference` exposes the seasonal table; computing it per palace and folding it into the chart would save the agent a step.
+- **「任一條件滿足」search mode.** The reference app offers per-palace OR alongside per-palace AND, and `find_chart_times` currently implements only AND. Low value on its own, but cheap once someone wants it.
 - **A 用神 helper.** Risky: choosing the 用神 is interpretation, and the engine's line is that interpretation belongs to the agent. If it happens it should return *candidates with their rationale*, never a single answer.
 - **Doctrine review of `SKILL.md`.** The 用神 and 格局 tables are assembled from common doctrine and marked as a draft. They need reconciling against a specific transmission before anyone leans on them.
 - **Extending the corpus past 2100.** The solar-term table stops at 2102 and the query range at 2100. Widening both is mechanical.

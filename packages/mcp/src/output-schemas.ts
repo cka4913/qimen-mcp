@@ -198,6 +198,67 @@ export const resolveTimeResultSchema = z
 
 export const renderResultSchema = z.object({ text: z.string() }).strict();
 
+const civilDate = z
+  .object({ year: z.number().int(), month: z.number().int(), day: z.number().int() })
+  .strict();
+
+const patternName = z.enum(["greenDragon", "flyingBird", "jadeGirl"]);
+
+const searchCriteria = z
+  .object({
+    palaces: z.array(z.string()).optional(),
+    skyStems: z.array(z.string()).optional(),
+    earthStems: z.array(z.string()).optional(),
+    doors: z.array(z.string()).optional(),
+    stars: z.array(z.string()).optional(),
+    gods: z.array(z.string()).optional(),
+    patterns: z.array(patternName).optional(),
+  })
+  .strict();
+
+const searchMatch = z
+  .object({
+    datetime: civilDateTime,
+    branch: z.string(),
+    dayPillar: z.string(),
+    hourPillar: z.string(),
+    ju: z.string(),
+    palace: z.string(),
+    matched: z
+      .object({
+        skyStem: z.string().optional(),
+        earthStem: z.string().optional(),
+        door: z.string().optional(),
+        star: z.string().optional(),
+        god: z.string().optional(),
+        patterns: z.array(patternName).optional(),
+      })
+      .strict(),
+  })
+  .strict();
+
+export const searchResultSchema = z
+  .object({
+    resolved: z
+      .object({
+        start: civilDate,
+        end: civilDate.optional(),
+        direction: z.enum(["forward", "backward"]),
+        method,
+        criteria: searchCriteria,
+        limit: z.number().int(),
+        maxDays: z.number().int(),
+      })
+      .strict(),
+    matches: z.array(searchMatch),
+    returned: z.number().int(),
+    limitReached: z.boolean(),
+    budgetExhausted: z.boolean(),
+    scannedThrough: civilDate,
+    scannedShichen: z.number().int(),
+  })
+  .strict();
+
 /**
  * The SDK wants the output schema as a raw shape, not a `ZodObject`. Strict
  * objects survive the round trip; this only unwraps the outer layer.
